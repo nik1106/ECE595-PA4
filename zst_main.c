@@ -56,12 +56,12 @@ int main(int argc, char *argv[])
 
 	exact_placement_head = find_exact_placements(preorder_traversal_head);
 
-	fp = fopen(argv[2], "w");
+	fp = fopen(argv[4], "w");
 	if(fp == NULL) {
 		printf("Error opening file %s for writing\n", argv[2]);
 		return 1;
 	}
-	binary_fp = fopen(argv[3], "w");
+	binary_fp = fopen(argv[5], "w");
 	if(binary_fp == NULL) {
 		printf("Error opening file %s for writing\n", argv[3]);
 		return 1;
