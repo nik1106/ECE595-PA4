@@ -9,7 +9,11 @@
 #define ZST_H
 #define EPSILON 0.00001
 
-double rd, r, c;
+#define SKEW_BOUND 3.0e-12
+#define TRANS_TIME_BOUND 80.0e-12
+
+double inv_cin, inv_cout, inv_rout;
+double r, c;
 double square_edge1_y_intercept, square_edge2_y_intercept;
 int global_node_num;
 
@@ -41,6 +45,11 @@ typedef struct node {
 	double right_wire_len;
 	double total_cap;
 	double delay;
+	double max_delay;
+	double min_delay;
+	int num_node_inv;
+	int num_left_inv;
+	int num_right_inv;
 	int node_num;
 	tilted_rect_reg *trr;
 	bool is_left_done;
@@ -70,7 +79,7 @@ typedef struct edge {
 } edge;
 
 /* Function declarations */
-node *read_input_file(char filename[]);
+node *read_sink_input_file(char filename[]);
 node *insert_end(node *head, int leaf_node_label, double sink_node_cap, double x_coordinate,
 		double y_coordinate, int node_num);
 node *insert_bucket_list(node *head, node *new_node);

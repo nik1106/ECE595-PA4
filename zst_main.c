@@ -12,8 +12,8 @@
 
 int main(int argc, char *argv[])
 {
-	if(argc != 4) {
-		printf("Usage: %s input_filename output_filename1 output_filename2\n", argv[0]);
+	if(argc != 6) {
+		printf("Usage: %s input_filename1 input_filename2 input_filename3 output_filename1 output_filename2\n", argv[0]);
 		return 1;
 	}
 
@@ -25,8 +25,24 @@ int main(int argc, char *argv[])
 	FILE *fp;
 	FILE *binary_fp;
 
-	/* Read the file input_filename */
-	sink_node_head = read_input_file(argv[1]);
+	/* Read the file input_filename1 */
+	fp = fopen(argv[1], "r");
+	if(fp == NULL) {
+		printf("Error opening file %s for reading\n", argv[1]);
+	}
+	fscanf(fp, "%le %le %le\n", &inv_cin, &inv_cout, &inv_rout);
+	fclose(fp);
+
+	/* Read the file input_filename2 */
+	fp = fopen(argv[2], "r");
+	if(fp == NULL) {
+		printf("Error opening file %s for reading\n", argv[2]);
+	}
+	fscanf(fp, "%le %le\n", &r, &c);
+	fclose(fp);
+
+	/* Read the file input_filename3 */
+	sink_node_head = read_sink_input_file(argv[3]);
 	if(sink_node_head == NULL) {
 		printf("Error opening file %s for reading\n", argv[1]);
 		return 1;
