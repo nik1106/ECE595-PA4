@@ -5,9 +5,6 @@
  *      Author: nchhabri
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 #include "zst.h"
 
 int main(int argc, char *argv[])
