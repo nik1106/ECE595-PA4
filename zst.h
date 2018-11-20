@@ -112,5 +112,6 @@ int merge_sort(edge **head_ptr);
 int front_back_split(edge *source, edge **front_ptr, edge **back_ptr);
 int postorder_traversal(node *root, FILE *fp, FILE *binary_fp);
 int free_binary_tree(node *root);
+void zero_skew_adjust(node *curr);
 
 #endif /* ZST_H */
