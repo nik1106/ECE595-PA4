@@ -9,6 +9,12 @@
 #define ZST_H
 #define EPSILON 0.00001
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
+#include <float.h>
+
 #define SKEW_BOUND 3.0e-12
 #define TRANS_TIME_BOUND 80.0e-12
 
@@ -112,6 +118,9 @@ int merge_sort(edge **head_ptr);
 int front_back_split(edge *source, edge **front_ptr, edge **back_ptr);
 int postorder_traversal(node *root, FILE *fp, FILE *binary_fp);
 int free_binary_tree(node *root);
+int insert_inv_left(node *parent);
+int insert_inv_right(node *parent);
 void zero_skew_adjust(node *curr);
+void bt_to_list(node *root, node **list, int *index);
 
 #endif /* ZST_H */

@@ -1,3 +1,10 @@
+/*
+ * zero_skew_adjust.c
+ *
+ *  Created on: Nov 19, 2018
+ *      Author: wei100
+ */
+
 #include "zst.h"
 
 void zero_skew_adjust(node *curr) {
