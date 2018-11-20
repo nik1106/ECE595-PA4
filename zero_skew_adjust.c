@@ -7,7 +7,8 @@
 
 #include "zst.h"
 
-void zero_skew_adjust(node *curr) {
+void zero_skew_adjust(node *curr)
+{
     double wire_delay_l = r * curr->left_wire_len * (curr->left->total_cap + c * curr->left_wire_len / 2);
     double wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
 
