@@ -1,4 +1,4 @@
-TARGET = PA4
+TARGET = pa4
 GCC = gcc
 CFLAGS = -g -std=c99 -Wall -Wshadow -Wvla -pedantic
 LIBS += -lm
