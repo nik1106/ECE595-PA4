@@ -54,8 +54,7 @@ typedef struct node {
 	double max_delay;
 	double min_delay;
 	int num_node_inv;
-	int num_left_inv;
-	int num_right_inv;
+	int num_up_inv;
 	int node_num;
 	tilted_rect_reg *trr;
 	bool is_left_done;
