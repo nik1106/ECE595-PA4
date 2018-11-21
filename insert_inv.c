@@ -23,15 +23,19 @@ int insert_inv_left(node *parent)
 		new_node->left_wire_len = parent->left_wire_len - temp_wire_len;
 		new_node->right_wire_len = -1.0;
 
+		parent->left_wire_len = temp_wire_len;
+
 		new_node->num_node_inv = 1;
 
-		/* Recalculate total_cap for parent */
+		parent->total_cap = inv_cin + c * temp_wire_len + parent->right->total_cap + c * parent->right_wire_len;
 
 		parent->left = new_node;
 
 		insert_inv_left(new_node);
 	} else if(temp_wire_len >= parent->left_wire_len + parent->left->left_wire_len || temp_wire_len >= parent->left_wire_len + parent->left->right_wire_len) {
 		parent->left->num_node_inv = 1;
+
+		parent->total_cap = inv_cin + c * parent->left_wire_len;
 	}
 
 	return 0;
@@ -58,9 +62,11 @@ int insert_inv_right(node *parent)
 		new_node->left_wire_len = parent->right_wire_len - temp_wire_len;
 		new_node->right_wire_len = -1.0;
 
+		parent->right_wire_len = temp_wire_len;
+
 		new_node->num_node_inv = 1;
 
-		/* Recalculate total_cap for parent */
+		parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + inv_cin + c * temp_wire_len;
 
 		parent->right = new_node;
 
@@ -73,9 +79,11 @@ int insert_inv_right(node *parent)
 		new_node->left_wire_len = parent->left_wire_len - temp_wire_len;
 		new_node->right_wire_len = -1.0;
 
+		parent->left_wire_len = temp_wire_len;
+
 		new_node->num_node_inv = 1;
 
-		/* Recalculate total_cap for parent */
+		parent->total_cap = inv_cin + c * temp_wire_len;
 
 		parent->left = new_node;
 
@@ -83,9 +91,13 @@ int insert_inv_right(node *parent)
 	} else if(parent->node_num != -1 &&
 			(temp_wire_len >= parent->right_wire_len + parent->right->left_wire_len || temp_wire_len >= parent->right_wire_len + parent->right->right_wire_len)) {
 		parent->right->num_node_inv = 1;
+
+		parent->total_cap = inv_cin + c * parent->right_wire_len;
 	} else if(parent->node_num == -1 &&
 			(temp_wire_len >= parent->left_wire_len + parent->left->left_wire_len || temp_wire_len >= parent->left_wire_len + parent->left->right_wire_len)) {
 		parent->left->num_node_inv = 1;
+
+		parent->total_cap = inv_cin + c * parent->left_wire_len;
 	}
 
 	return 0;
