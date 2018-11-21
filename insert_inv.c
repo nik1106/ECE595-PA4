@@ -29,6 +29,9 @@ int insert_inv_left(node *parent)
 
 		parent->total_cap = inv_cin + c * temp_wire_len + parent->right->total_cap + c * parent->right_wire_len;
 
+		new_node->next = parent->left->next;
+		parent->left->next = new_node;
+
 		parent->left = new_node;
 
 		insert_inv_left(new_node);
@@ -68,6 +71,9 @@ int insert_inv_right(node *parent)
 
 		parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + inv_cin + c * temp_wire_len;
 
+		new_node->next = parent->right->next;
+		parent->right->next = new_node;
+
 		parent->right = new_node;
 
 		insert_inv_right(new_node);
@@ -84,6 +90,9 @@ int insert_inv_right(node *parent)
 		new_node->num_node_inv = 1;
 
 		parent->total_cap = inv_cin + c * temp_wire_len;
+
+		new_node->next = parent->left->next;
+		parent->left->next = new_node;
 
 		parent->left = new_node;
 
