@@ -9,6 +9,13 @@
 
 void zero_skew_adjust(node *curr)
 {
+    //if the current node is an inverter
+    if(curr->node_num == -1) {
+        double wire_delay_l = r * curr->left_wire_len * (curr->left->total_cap + c * curr->left_wire_len / 2);
+        curr->min_delay = curr->left->min_delay + wire_delay_l;
+        curr->max_delay = curr->left->max_delay + wire_delay_l;
+        return;
+    }
     double wire_delay_l = r * curr->left_wire_len * (curr->left->total_cap + c * curr->left_wire_len / 2);
     double wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
 
