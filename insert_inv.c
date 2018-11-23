@@ -12,8 +12,8 @@ int insert_inv_left(node *parent)
 	double temp_wire_len;
 	node *new_node;
 
-	temp_wire_len = (2.2 * r * c * parent->left_wire_len + 1.1 * r * parent->left->total_cap + sqrt(pow(2.2 * r * c * parent->left_wire_len
-			+ 1.1 * r * parent->left->total_cap, 2) - 8.8 * r * c * TRANS_TIME_BOUND)) / (4.4 * r * c);
+	temp_wire_len = (2.2 * r * parent->left->total_cap + 1.1 * r * c * parent->left_wire_len + sqrt(pow(2.2 * r * parent->left->total_cap
+			+ 1.1 * r * c * parent->left_wire_len, 2) - 4.4 * r * c * TRANS_TIME_BOUND)) / (2.2 * r * c);
 
 	if(temp_wire_len <= parent->left_wire_len) {
 		new_node = create_internal_node(-1, parent->left, NULL);
@@ -27,7 +27,11 @@ int insert_inv_left(node *parent)
 
 		new_node->num_node_inv = 1;
 
-		parent->total_cap = inv_cin + c * temp_wire_len + parent->right->total_cap + c * parent->right_wire_len;
+		if(parent->right != NULL) {
+			parent->total_cap = inv_cin + c * temp_wire_len + parent->right->total_cap + c * parent->right_wire_len;
+		} else {
+			parent->total_cap = inv_cin + c * temp_wire_len;
+		}
 
 		new_node->next = parent->left->next;
 		parent->left->next = new_node;
@@ -50,11 +54,11 @@ int insert_inv_right(node *parent)
 	node *new_node;
 
 	if(parent->node_num != -1) {
-		temp_wire_len = (2.2 * r * c * parent->right_wire_len + 1.1 * r * parent->right->total_cap + sqrt(pow(2.2 * r * c * parent->right_wire_len
-				+ 1.1 * r * parent->right->total_cap, 2) - 8.8 * r * c * TRANS_TIME_BOUND)) / (4.4 * r * c);
+		temp_wire_len = (2.2 * r * parent->right->total_cap + 1.1 * r * c * parent->right_wire_len + sqrt(pow(2.2 * r * parent->right->total_cap
+				+ 1.1 * r * c * parent->right_wire_len, 2) - 4.4 * r * c * TRANS_TIME_BOUND)) / (2.2 * r * c);
 	} else {
-		temp_wire_len = (2.2 * r * c * parent->left_wire_len + 1.1 * r * parent->left->total_cap + sqrt(pow(2.2 * r * c * parent->left_wire_len
-				+ 1.1 * r * parent->left->total_cap, 2) - 8.8 * r * c * TRANS_TIME_BOUND)) / (4.4 * r * c);
+		temp_wire_len = (2.2 * r * parent->left->total_cap + 1.1 * r * c * parent->left_wire_len + sqrt(pow(2.2 * r * parent->left->total_cap
+				+ 1.1 * r * c * parent->left_wire_len, 2) - 4.4 * r * c * TRANS_TIME_BOUND)) / (2.2 * r * c);
 	}
 
 	if(parent->node_num != -1 && temp_wire_len <= parent->right_wire_len) {
