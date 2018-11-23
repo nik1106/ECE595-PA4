@@ -2493,13 +2493,15 @@ int postorder_traversal(node *root, FILE *fp, FILE *binary_fp)
 			fwrite(&root->x_coordinate, sizeof(root->x_coordinate), 1, binary_fp);
 			fwrite(&root->y_coordinate, sizeof(root->y_coordinate), 1, binary_fp);
 		} else {
-			fprintf(fp, "(%e %e %e %e)\n", root->left_wire_len, root->right_wire_len, root->x_coordinate, root->y_coordinate);
+			fprintf(fp, "(%e %e %e %e %d)\n", root->left_wire_len, root->right_wire_len, root->x_coordinate, root->y_coordinate,
+					root->num_node_inv);
 
 			fwrite(&root->leaf_node_label, sizeof(root->leaf_node_label), 1, binary_fp);
 			fwrite(&root->left_wire_len, sizeof(root->left_wire_len), 1, binary_fp);
 			fwrite(&root->right_wire_len, sizeof(root->right_wire_len), 1, binary_fp);
 			fwrite(&root->x_coordinate, sizeof(root->x_coordinate), 1, binary_fp);
 			fwrite(&root->y_coordinate, sizeof(root->y_coordinate), 1, binary_fp);
+			fwrite(&root->num_node_inv, sizeof(root->num_node_inv), 1, binary_fp);
 		}
 	}
 
