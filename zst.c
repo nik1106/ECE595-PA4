@@ -2476,6 +2476,20 @@ node *find_exact_placements(node *head)
 		head = head->next;
 	}
 
+	global_node_num += 1;
+
+	new_node = create_internal_node(global_node_num, exact_placement_head, NULL);
+
+	new_node->x_coordinate = 0.0;
+	new_node->y_coordinate = 0.0;
+
+	new_node->left_wire_len = fabs(exact_placement_head->x_coordinate) + fabs(exact_placement_head->y_coordinate);
+	new_node->right_wire_len = -1.0;
+
+	new_node->num_node_inv = 1;
+
+	exact_placement_head = new_node;
+
 	return exact_placement_head;
 }
 
