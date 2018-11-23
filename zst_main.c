@@ -64,12 +64,12 @@ int main(int argc, char *argv[])
 
 	fp = fopen(argv[4], "w");
 	if(fp == NULL) {
-		printf("Error opening file %s for writing\n", argv[2]);
+		printf("Error opening file %s for writing\n", argv[4]);
 		return 1;
 	}
 	binary_fp = fopen(argv[5], "w");
 	if(binary_fp == NULL) {
-		printf("Error opening file %s for writing\n", argv[3]);
+		printf("Error opening file %s for writing\n", argv[5]);
 		return 1;
 	}
 	postorder_traversal(exact_placement_head, fp, binary_fp);
