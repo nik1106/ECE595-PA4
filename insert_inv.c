@@ -18,7 +18,7 @@ int insert_inv_left(node *parent)
 	if(temp_wire_len <= parent->left_wire_len) {
 		new_node = create_internal_node(-1, parent->left, NULL);
 
-		/* Find x_coordinate and y_coordinate of new_node */
+		find_inv_loc(parent, parent->left_wire_len, temp_wire_len, parent->left, new_node);
 
 		new_node->left_wire_len = parent->left_wire_len - temp_wire_len;
 		new_node->right_wire_len = -1.0;
@@ -60,7 +60,7 @@ int insert_inv_right(node *parent)
 	if(parent->node_num != -1 && temp_wire_len <= parent->right_wire_len) {
 		new_node = create_internal_node(-1, parent->right, NULL);
 
-		/* Find x_coordinate and y_coordinate of new_node */
+		find_inv_loc(parent, parent->right_wire_len, temp_wire_len, parent->right, new_node);
 
 		new_node->left_wire_len = parent->right_wire_len - temp_wire_len;
 		new_node->right_wire_len = -1.0;
@@ -80,7 +80,7 @@ int insert_inv_right(node *parent)
 	} else if(parent->node_num == -1 && temp_wire_len <= parent->left_wire_len) {
 		new_node = create_internal_node(-1, parent->left, NULL);
 
-		/* Find x_coordinate and y_coordinate of new_node */
+		find_inv_loc(parent, parent->left_wire_len, temp_wire_len, parent->left, new_node);
 
 		new_node->left_wire_len = parent->left_wire_len - temp_wire_len;
 		new_node->right_wire_len = -1.0;
