@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
 	/* Read the file input_filename3 */
 	sink_node_head = read_sink_input_file(argv[3]);
 	if(sink_node_head == NULL) {
-		printf("Error opening file %s for reading\n", argv[1]);
+		printf("Error opening file %s for reading\n", argv[3]);
 		return 1;
 	}
 
