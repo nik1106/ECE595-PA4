@@ -2500,14 +2500,14 @@ int postorder_traversal(node *root, FILE *fp, FILE *binary_fp)
 		postorder_traversal(root->right, fp, binary_fp);
 
 		if(root->leaf_node_label != -1) {
-			fprintf(fp, "%d(%e %e %e)\n", root->leaf_node_label, root->sink_node_cap, root->x_coordinate, root->y_coordinate);
+			fprintf(fp, "%d(%.10le %.10le %.10le)\n", root->leaf_node_label, root->sink_node_cap, root->x_coordinate, root->y_coordinate);
 
 			fwrite(&root->leaf_node_label, sizeof(root->leaf_node_label), 1, binary_fp);
 			fwrite(&root->sink_node_cap, sizeof(root->sink_node_cap), 1, binary_fp);
 			fwrite(&root->x_coordinate, sizeof(root->x_coordinate), 1, binary_fp);
 			fwrite(&root->y_coordinate, sizeof(root->y_coordinate), 1, binary_fp);
 		} else {
-			fprintf(fp, "(%e %e %e %e %d)\n", root->left_wire_len, root->right_wire_len, root->x_coordinate, root->y_coordinate,
+			fprintf(fp, "(%.10le %.10le %.10le %.10le %d)\n", root->left_wire_len, root->right_wire_len, root->x_coordinate, root->y_coordinate,
 					root->num_node_inv);
 
 			fwrite(&root->leaf_node_label, sizeof(root->leaf_node_label), 1, binary_fp);
