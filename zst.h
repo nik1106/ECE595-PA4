@@ -16,7 +16,7 @@
 #include <float.h>
 
 #define SKEW_BOUND 3.0e-12
-#define TRANS_TIME_BOUND 80.0e-12
+#define TRANS_TIME_BOUND 50.0e-12
 
 double inv_cin, inv_cout, inv_rout;
 double r, c;
