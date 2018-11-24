@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 	exact_placement_head = find_exact_placements(preorder_traversal_head);
 
 	/* Convert binary tree into linked list in post order */
-	int num_nodes = find_num_elements(preorder_traversal_head);
+	int num_nodes = exact_placement_head->node_num;
 	int index = 0;
 	node** list = malloc(sizeof(node*) * num_nodes);
 	bt_to_list(exact_placement_head, list, &index);
