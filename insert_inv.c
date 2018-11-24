@@ -7,110 +7,95 @@
 
 #include "zst.h"
 
-int insert_inv_left(node *parent)
+int insert_inv_left(node *parent, node *child)
 {
 	double temp_wire_len;
 	node *new_node;
+	double x, y, z;
 
-	temp_wire_len = (2.2 * r * parent->left->total_cap + 1.1 * r * c * parent->left_wire_len + sqrt(pow(2.2 * r * parent->left->total_cap
-			+ 1.1 * r * c * parent->left_wire_len, 2) - 4.4 * r * c * TRANS_TIME_BOUND)) / (2.2 * r * c);
+	x = 1.1 * r * c;
 
-	if(temp_wire_len <= parent->left_wire_len) {
-		new_node = create_internal_node(-1, parent->left, NULL);
+	if(child->node_num != -1) {
+		y = 2.2 * r * child->total_cap;
+	} else {
+		y = 2.2 * r * inv_cin;
+	}
 
-		find_inv_loc(parent, parent->left_wire_len, temp_wire_len, parent->left, new_node);
+	z = -TRANS_TIME_BOUND;
 
-		new_node->left_wire_len = parent->left_wire_len - temp_wire_len;
+	temp_wire_len = (-y + sqrt(pow(y, 2) - 4.0 * x * z)) / (2.0 * x);
+
+	if(temp_wire_len < parent->left_wire_len) {
+		new_node = create_internal_node(-1, child, NULL);
+
+		find_inv_loc(parent, parent->left_wire_len, temp_wire_len, child, new_node);
+
+		new_node->left_wire_len = temp_wire_len;
 		new_node->right_wire_len = -1.0;
 
-		parent->left_wire_len = temp_wire_len;
+		parent->left_wire_len -= temp_wire_len;
 
 		new_node->num_node_inv = 1;
 
 		if(parent->right != NULL) {
-			parent->total_cap = inv_cin + c * temp_wire_len + parent->right->total_cap + c * parent->right_wire_len;
+			parent->total_cap = inv_cin + c * parent->left_wire_len + parent->right->total_cap + c * parent->right_wire_len;
 		} else {
-			parent->total_cap = inv_cin + c * temp_wire_len;
+			parent->total_cap = inv_cin + c * parent->left_wire_len;
 		}
 
-		new_node->next = parent->left->next;
-		parent->left->next = new_node;
+		new_node->next = child->next;
+		child->next = new_node;
 
 		parent->left = new_node;
 
-		insert_inv_left(new_node);
-	} else if(temp_wire_len >= parent->left_wire_len + parent->left->left_wire_len || temp_wire_len >= parent->left_wire_len + parent->left->right_wire_len) {
-		parent->left->num_node_inv = 1;
-
-		parent->total_cap = inv_cin + c * parent->left_wire_len;
+		insert_inv_left(parent, new_node);
 	}
 
 	return 0;
 }
 
-int insert_inv_right(node *parent)
+int insert_inv_right(node *parent, node *child)
 {
 	double temp_wire_len;
 	node *new_node;
+	double x, y, z;
 
-	if(parent->node_num != -1) {
-		temp_wire_len = (2.2 * r * parent->right->total_cap + 1.1 * r * c * parent->right_wire_len + sqrt(pow(2.2 * r * parent->right->total_cap
-				+ 1.1 * r * c * parent->right_wire_len, 2) - 4.4 * r * c * TRANS_TIME_BOUND)) / (2.2 * r * c);
+	x = 1.1 * r * c;
+
+	if(child->node_num != -1) {
+		y = 2.2 * r * child->total_cap;
 	} else {
-		temp_wire_len = (2.2 * r * parent->left->total_cap + 1.1 * r * c * parent->left_wire_len + sqrt(pow(2.2 * r * parent->left->total_cap
-				+ 1.1 * r * c * parent->left_wire_len, 2) - 4.4 * r * c * TRANS_TIME_BOUND)) / (2.2 * r * c);
+		y = 2.2 * r * inv_cin;
 	}
 
-	if(parent->node_num != -1 && temp_wire_len <= parent->right_wire_len) {
-		new_node = create_internal_node(-1, parent->right, NULL);
+	z = -TRANS_TIME_BOUND;
 
-		find_inv_loc(parent, parent->right_wire_len, temp_wire_len, parent->right, new_node);
+	temp_wire_len = (-y + sqrt(pow(y, 2) - 4.0 * x * z)) / (2.0 * x);
 
-		new_node->left_wire_len = parent->right_wire_len - temp_wire_len;
+	if(temp_wire_len < parent->right_wire_len) {
+		new_node = create_internal_node(-1, child, NULL);
+
+		find_inv_loc(parent, parent->right_wire_len, temp_wire_len, child, new_node);
+
+		new_node->left_wire_len = temp_wire_len;
 		new_node->right_wire_len = -1.0;
 
-		parent->right_wire_len = temp_wire_len;
+		parent->right_wire_len -= temp_wire_len;
 
 		new_node->num_node_inv = 1;
 
-		parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + inv_cin + c * temp_wire_len;
+		if(parent->left->node_num != -1) {
+			parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + inv_cin + c * parent->right_wire_len;
+		} else {
+			parent->total_cap = inv_cin + c * parent->left_wire_len + inv_cin + c * parent->right_wire_len;
+		}
 
-		new_node->next = parent->right->next;
-		parent->right->next = new_node;
+		new_node->next = child->next;
+		child->next = new_node;
 
 		parent->right = new_node;
 
-		insert_inv_right(new_node);
-	} else if(parent->node_num == -1 && temp_wire_len <= parent->left_wire_len) {
-		new_node = create_internal_node(-1, parent->left, NULL);
-
-		find_inv_loc(parent, parent->left_wire_len, temp_wire_len, parent->left, new_node);
-
-		new_node->left_wire_len = parent->left_wire_len - temp_wire_len;
-		new_node->right_wire_len = -1.0;
-
-		parent->left_wire_len = temp_wire_len;
-
-		new_node->num_node_inv = 1;
-
-		parent->total_cap = inv_cin + c * temp_wire_len;
-
-		new_node->next = parent->left->next;
-		parent->left->next = new_node;
-
-		parent->left = new_node;
-
-		insert_inv_right(new_node);
-	} else if(parent->node_num != -1 &&
-			(temp_wire_len >= parent->right_wire_len + parent->right->left_wire_len || temp_wire_len >= parent->right_wire_len + parent->right->right_wire_len)) {
-		parent->right->num_node_inv = 1;
-
-		parent->total_cap = inv_cin + c * parent->right_wire_len;
-	} else if(parent->node_num == -1 &&
-			(temp_wire_len >= parent->left_wire_len + parent->left->left_wire_len || temp_wire_len >= parent->left_wire_len + parent->left->right_wire_len)) {
-		parent->left->num_node_inv = 1;
-
-		parent->total_cap = inv_cin + c * parent->left_wire_len;
+		insert_inv_right(parent, new_node);
 	}
 
 	return 0;
