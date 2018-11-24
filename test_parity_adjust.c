@@ -28,6 +28,7 @@ void test_parity_adjust(node* curr, node* parent) {
                 new_node->next = parent;
             }
             parent->left = new_node;
+            parent->right = NULL;
             new_node->num_up_inv = new_node->num_node_inv + parent->num_up_inv;
             curr->num_up_inv++;
 
