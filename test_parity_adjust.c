@@ -3,6 +3,7 @@ void test_parity_adjust(node* curr, node* parent) {
     if(curr == NULL) {
         return;
     }
+    curr->num_up_inv += curr->num_node_inv + parent->num_up_inv;
     if(curr->leaf_node_label != -1) {
         if(curr->num_up_inv % 2 == 1) {
             node* new_node = create_internal_node(-1, parent->left, parent->right);
@@ -27,6 +28,9 @@ void test_parity_adjust(node* curr, node* parent) {
                 new_node->next = parent;
             }
             parent->left = new_node;
+            new_node->num_up_inv = new_node->num_node_inv + parent->num_up_inv;
+            curr->num_up_inv++;
+
         }
     }
     test_parity_adjust(curr->left, curr);
