@@ -119,7 +119,7 @@ int insert_inv_left(node *parent, node *child)
 int insert_inv_right(node *parent, node *child)
 {
 	double temp_wire_len;
-	node *new_node;
+	node *new_node = NULL;
 	double x, y, z;
 	double left_res, left_cap, right_res, right_cap;
 	double left_trans_time = 0.0, right_trans_time = 0.0;
