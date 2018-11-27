@@ -16,8 +16,9 @@
 #include <float.h>
 
 #define SKEW_BOUND 3.0e-12
-#define TRANS_TIME_BOUND 50.0e-12
+#define TRANS_TIME_BOUND 10.0e-12
 #define SINK_BOUND 1.5e-9
+
 double inv_cin, inv_cout, inv_rout;
 double r, c;
 double square_edge1_y_intercept, square_edge2_y_intercept;
@@ -54,7 +55,8 @@ typedef struct node {
 	double max_delay;
 	double min_delay;
 	int num_node_inv;
-	int num_up_inv;
+	int num_left_inv;
+	int num_right_inv;
 	int node_num;
 	tilted_rect_reg *trr;
 	bool is_left_done;
@@ -123,6 +125,6 @@ void zero_skew_adjust(node *curr);
 void bt_to_list(node *root, node **list, int *index);
 void find_inv_loc(node *node_parent, double wire_length, double radius, node *node_child, node *inv);
 void test_insert(node* post_order_traversal_head);
-void test_parity_adjust(node* curr, node* parent);
+void parity_adjust(node *parent);
 
 #endif /* ZST_H */

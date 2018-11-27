@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
 	list[num_nodes - 1]->next = NULL;
 	free(list);
 	test_insert(postorder_traversal_head);
-	test_parity_adjust(exact_placement_head, exact_placement_head);
 
 	fp = fopen(argv[4], "w");
 	if(fp == NULL) {

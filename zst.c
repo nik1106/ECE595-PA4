@@ -62,7 +62,8 @@ node *insert_end(node *head, int leaf_node_label, double sink_node_cap, double x
 		head->max_delay = 0.0;
 		head->min_delay = 0.0;
 		head->num_node_inv = 0;
-		head->num_up_inv = 0;
+		head->num_left_inv = 0;
+		head->num_right_inv = 0;
 		head->node_num = node_num;
 
 		head->trr->core->x1_coordinate = x_coordinate;
@@ -110,7 +111,8 @@ node *insert_end(node *head, int leaf_node_label, double sink_node_cap, double x
 	tail->next->max_delay = 0.0;
 	tail->next->min_delay = 0.0;
 	tail->next->num_node_inv = 0;
-	tail->next->num_up_inv = 0;
+	tail->next->num_left_inv = 0;
+	tail->next->num_right_inv = 0;
 	tail->next->node_num = node_num;
 
 	tail->next->trr->core->x1_coordinate = x_coordinate;
@@ -2183,7 +2185,8 @@ node *create_internal_node(int node_num, node *left_child, node *right_child)
 	new_node->max_delay = 0.0;
 	new_node->min_delay = 0.0;
 	new_node->num_node_inv = 0;
-	new_node->num_up_inv = 0;
+	new_node->num_left_inv = 0;
+	new_node->num_right_inv = 0;
 	new_node->node_num = node_num;
 
 	new_node->trr->core->x1_coordinate = 0.0;
@@ -2306,7 +2309,8 @@ node *copy_node(node *node1)
 	node2->max_delay = node1->max_delay;
 	node2->min_delay = node1->min_delay;
 	node2->num_node_inv = node1->num_node_inv;
-	node2->num_up_inv = node1->num_up_inv;
+	node2->num_left_inv = node1->num_left_inv;
+	node2->num_right_inv = node1->num_right_inv;
 	node2->node_num = node1->node_num;
 
 	node2->trr->core->x1_coordinate = node1->trr->core->x1_coordinate;
@@ -2487,6 +2491,7 @@ node *find_exact_placements(node *head)
 	new_node->right_wire_len = -1.0;
 
 	new_node->num_node_inv = 1;
+	new_node->num_left_inv = 1;
 
 	exact_placement_head = new_node;
 
