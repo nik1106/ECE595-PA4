@@ -3,8 +3,6 @@
 //the max and min delay and adjust inverter size accordingly
 void test_calc_delay_while_insert(node* curr) {
     if(curr->leaf_node_label != -1) {
-        curr->max_delay = 0;
-        curr->min_delay = 0;
         return;
     }
     if(curr->node_num == -1) {
