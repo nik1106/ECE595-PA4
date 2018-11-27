@@ -1,10 +1,12 @@
 /*
- * bt_to_list.c
+ * find_inv_loc.c
  *
  *  Created on: Nov 21, 2018
  *      Author: wei100
  */
+
 #include "zst.h"
+
 void find_inv_loc(node* node_parent, double wire_length, double radius, node* node_child, node* inv) 
 {
     if(node_parent == NULL || node_child == NULL || inv == NULL) {
