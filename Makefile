@@ -11,7 +11,7 @@ $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LIBS)
 
 test:
-	$(VALGRIND)=./logfile ./PA4
+	$(VALGRIND)=./logfile ./pa4
 
 .c.o:
 	$(GCC) $(CFLAGS) -c $*.c
