@@ -28,7 +28,8 @@ void parity_adjust(node *parent)
 			parent->left_wire_len = 0.0;
 			parent->right_wire_len = -1.0;
 
-			new_node->num_node_inv = 1;
+			new_node->num_node_inv = parent->num_node_inv;
+			parent->num_node_inv = 1;
 
 			new_node->total_cap = parent->total_cap;
 			parent->total_cap = new_node->num_node_inv * inv_cin;
