@@ -31,7 +31,7 @@ void parity_adjust(node *parent)
 			new_node->num_node_inv = 1;
 
 			new_node->total_cap = parent->total_cap;
-			parent->total_cap = inv_cin;
+			parent->total_cap = new_node->num_node_inv * inv_cin;
 
 			new_node->next = parent;
 
@@ -51,7 +51,17 @@ void parity_adjust(node *parent)
 
 		parent->num_left_inv += 1;
 
-		new_node->total_cap = inv_cin;
+		new_node->total_cap = new_node->num_node_inv * inv_cout + parent->left->num_node_inv * inv_cin;
+
+		if(parent->right != NULL) {
+			if(parent->right->node_num != -1) {
+				parent->total_cap = new_node->num_node_inv * inv_cin + c * parent->left_wire_len + parent->right->total_cap + c * parent->right_wire_len;
+			} else {
+				parent->total_cap = new_node->num_node_inv * inv_cin + c * parent->left_wire_len + parent->right->num_node_inv * inv_cin + c * parent->right_wire_len;
+			}
+		} else {
+			parent->total_cap = new_node->num_node_inv * inv_cin + c * parent->left_wire_len;
+		}
 
 		new_node->next = parent->left->next;
 		parent->left->next = new_node;
@@ -70,7 +80,13 @@ void parity_adjust(node *parent)
 
 		parent->num_right_inv += 1;
 
-		new_node->total_cap = inv_cin;
+		new_node->total_cap = new_node->num_node_inv * inv_cout + parent->right->num_node_inv * inv_cin;
+
+		if(parent->left->node_num != -1) {
+			parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + new_node->num_node_inv * inv_cin + c * parent->right_wire_len;
+		} else {
+			parent->total_cap = parent->left->num_node_inv * inv_cin + c * parent->left_wire_len + new_node->num_node_inv * inv_cin + c * parent->right_wire_len;
+		}
 
 		new_node->next = parent->right->next;
 		parent->right->next = new_node;
