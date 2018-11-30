@@ -42,7 +42,7 @@ int insert_inv_left(node *parent, node *child)
 
 		parent->num_left_inv += 1;
 
-		if(child->node_num != -1) {
+		if(child->node_num != -1 && child->num_node_inv == 0) {
 			new_node->total_cap = new_node->num_node_inv * inv_cout + child->total_cap + c * new_node->left_wire_len;
 		} else {
 			new_node->total_cap = new_node->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * new_node->left_wire_len;
@@ -52,7 +52,7 @@ int insert_inv_left(node *parent, node *child)
 		while(out_trans_time > TRANS_TIME_BOUND) {
 			new_node->num_node_inv += 1;
 
-			if(child->node_num != -1) {
+			if(child->node_num != -1 && child->num_node_inv == 0) {
 				new_node->total_cap = new_node->num_node_inv * inv_cout + child->total_cap + c * new_node->left_wire_len;
 			} else {
 				new_node->total_cap = new_node->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * new_node->left_wire_len;
@@ -62,13 +62,15 @@ int insert_inv_left(node *parent, node *child)
 		}
 
 		if(parent->right != NULL) {
-			if(parent->right->node_num != -1) {
-				parent->total_cap = new_node->num_node_inv * inv_cin + c * parent->left_wire_len + parent->right->total_cap + c * parent->right_wire_len;
+			if(parent->right->node_num != -1 && parent->right->num_node_inv == 0) {
+				parent->total_cap = parent->num_node_inv * inv_cout + new_node->num_node_inv * inv_cin
+						+ c * parent->left_wire_len + parent->right->total_cap + c * parent->right_wire_len;
 			} else {
-				parent->total_cap = new_node->num_node_inv * inv_cin + c * parent->left_wire_len + parent->right->num_node_inv * inv_cin + c * parent->right_wire_len;
+				parent->total_cap = parent->num_node_inv * inv_cout + new_node->num_node_inv * inv_cin
+						+ c * parent->left_wire_len + parent->right->num_node_inv * inv_cin + c * parent->right_wire_len;
 			}
 		} else {
-			parent->total_cap = new_node->num_node_inv * inv_cin + c * parent->left_wire_len;
+			parent->total_cap = parent->num_node_inv * inv_cout + new_node->num_node_inv * inv_cin + c * parent->left_wire_len;
 		}
 
 		new_node->next = child->next;
@@ -84,18 +86,22 @@ int insert_inv_left(node *parent, node *child)
 			if(new_node != NULL) {
 				left_res = r * (new_node->left_wire_len + child->left_wire_len);
 
-				if(child->left->node_num != -1) {
-					left_cap = child->left->total_cap + 0.5 * c * (new_node->left_wire_len + child->left_wire_len);
+				if(child->left->node_num != -1 && child->left->num_node_inv == 0) {
+					left_cap = new_node->num_node_inv * inv_cout + child->left->total_cap
+							+ c * (new_node->left_wire_len + child->left_wire_len);
 				} else {
-					left_cap = child->left->num_node_inv * inv_cin + 0.5 * c * (new_node->left_wire_len + child->left_wire_len);
+					left_cap = new_node->num_node_inv * inv_cout + child->left->num_node_inv * inv_cin
+							+ c * (new_node->left_wire_len + child->left_wire_len);
 				}
 			} else {
 				left_res = r * (parent->left_wire_len + child->left_wire_len);
 
-				if(child->left->node_num != -1) {
-					left_cap = child->left->total_cap + 0.5 * c * (parent->left_wire_len + child->left_wire_len);
+				if(child->left->node_num != -1 && child->left->num_node_inv == 0) {
+					left_cap = parent->num_node_inv * inv_cout + child->left->total_cap
+							+ c * (parent->left_wire_len + child->left_wire_len);
 				} else {
-					left_cap = child->left->num_node_inv * inv_cin + 0.5 * c * (parent->left_wire_len + child->left_wire_len);
+					left_cap = parent->num_node_inv * inv_cout + child->left->num_node_inv * inv_cin
+							+ c * (parent->left_wire_len + child->left_wire_len);
 				}
 			}
 
@@ -106,18 +112,22 @@ int insert_inv_left(node *parent, node *child)
 			if(new_node != NULL) {
 				right_res = r * (new_node->left_wire_len + child->right_wire_len);
 
-				if(child->right->node_num != -1) {
-					right_cap = child->right->total_cap + 0.5 * c * (new_node->left_wire_len + child->right_wire_len);
+				if(child->right->node_num != -1 && child->right->num_node_inv == 0) {
+					right_cap = new_node->num_node_inv * inv_cout + child->right->total_cap
+							+ c * (new_node->left_wire_len + child->right_wire_len);
 				} else {
-					right_cap = child->right->num_node_inv * inv_cin + 0.5 * c * (new_node->left_wire_len + child->right_wire_len);
+					right_cap = new_node->num_node_inv * inv_cout + child->right->num_node_inv * inv_cin
+							+ c * (new_node->left_wire_len + child->right_wire_len);
 				}
 			} else {
 				right_res = r * (parent->left_wire_len + child->right_wire_len);
 
-				if(child->right->node_num != -1) {
-					right_cap = child->right->total_cap + 0.5 * c * (parent->left_wire_len + child->right_wire_len);
+				if(child->right->node_num != -1 && child->right->num_node_inv == 0) {
+					right_cap = parent->num_node_inv * inv_cout + child->right->total_cap
+							+ c * (parent->left_wire_len + child->right_wire_len);
 				} else {
-					right_cap = child->right->num_node_inv * inv_cin + 0.5 * c * (parent->left_wire_len + child->right_wire_len);
+					right_cap = parent->num_node_inv * inv_cout + child->right->num_node_inv * inv_cin
+							+ c * (parent->left_wire_len + child->right_wire_len);
 				}
 			}
 
@@ -143,16 +153,18 @@ int insert_inv_left(node *parent, node *child)
 			parity_adjust(child);
 
 			if(new_node != NULL) {
-				new_node->total_cap = child->num_node_inv * inv_cin + c * new_node->left_wire_len;
+				new_node->total_cap = new_node->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * new_node->left_wire_len;
 			} else {
 				if(parent->right != NULL) {
-					if(parent->right->node_num != -1) {
-						parent->total_cap = child->num_node_inv * inv_cin + c * parent->left_wire_len + parent->right->total_cap + c * parent->right_wire_len;
+					if(parent->right->node_num != -1 && parent->right->num_node_inv == 0) {
+						parent->total_cap = parent->num_node_inv * inv_cout + child->num_node_inv * inv_cin
+								+ c * parent->left_wire_len + parent->right->total_cap + c * parent->right_wire_len;
 					} else {
-						parent->total_cap = child->num_node_inv * inv_cin + c * parent->left_wire_len + parent->right->num_node_inv * inv_cin + c * parent->right_wire_len;
+						parent->total_cap = parent->num_node_inv * inv_cout + child->num_node_inv * inv_cin
+								+ c * parent->left_wire_len + parent->right->num_node_inv * inv_cin + c * parent->right_wire_len;
 					}
 				} else {
-					parent->total_cap = child->num_node_inv * inv_cin + c * parent->left_wire_len;
+					parent->total_cap = parent->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * parent->left_wire_len;
 				}
 			}
 		}
@@ -196,7 +208,7 @@ int insert_inv_right(node *parent, node *child)
 
 		parent->num_right_inv += 1;
 
-		if(child->node_num != -1) {
+		if(child->node_num != -1 && child->num_node_inv == 0) {
 			new_node->total_cap = new_node->num_node_inv * inv_cout + child->total_cap + c * new_node->left_wire_len;
 		} else {
 			new_node->total_cap = new_node->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * new_node->left_wire_len;
@@ -206,7 +218,7 @@ int insert_inv_right(node *parent, node *child)
 		while(out_trans_time > TRANS_TIME_BOUND) {
 			new_node->num_node_inv += 1;
 
-			if(child->node_num != -1) {
+			if(child->node_num != -1 && child->num_node_inv == 0) {
 				new_node->total_cap = new_node->num_node_inv * inv_cout + child->total_cap + c * new_node->left_wire_len;
 			} else {
 				new_node->total_cap = new_node->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * new_node->left_wire_len;
@@ -215,10 +227,12 @@ int insert_inv_right(node *parent, node *child)
 			out_trans_time = TRANS_TIME_CONST * (inv_rout / new_node->num_node_inv) * new_node->total_cap;
 		}
 
-		if(parent->left->node_num != -1) {
-			parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + new_node->num_node_inv * inv_cin + c * parent->right_wire_len;
+		if(parent->left->node_num != -1 && parent->left->num_node_inv == 0) {
+			parent->total_cap = parent->num_node_inv * inv_cout + parent->left->total_cap
+					+ c * parent->left_wire_len + new_node->num_node_inv * inv_cin + c * parent->right_wire_len;
 		} else {
-			parent->total_cap = parent->left->num_node_inv * inv_cin + c * parent->left_wire_len + new_node->num_node_inv * inv_cin + c * parent->right_wire_len;
+			parent->total_cap = parent->num_node_inv * inv_cout + parent->left->num_node_inv * inv_cin
+					+ c * parent->left_wire_len + new_node->num_node_inv * inv_cin + c * parent->right_wire_len;
 		}
 
 		new_node->next = child->next;
@@ -234,18 +248,22 @@ int insert_inv_right(node *parent, node *child)
 			if(new_node != NULL) {
 				left_res = r * (new_node->left_wire_len + child->left_wire_len);
 
-				if(child->left->node_num != -1) {
-					left_cap = child->left->total_cap + 0.5 * c * (new_node->left_wire_len + child->left_wire_len);
+				if(child->left->node_num != -1 && child->left->num_node_inv == 0) {
+					left_cap = new_node->num_node_inv * inv_cout + child->left->total_cap
+							+ c * (new_node->left_wire_len + child->left_wire_len);
 				} else {
-					left_cap = child->left->num_node_inv * inv_cin + 0.5 * c * (new_node->left_wire_len + child->left_wire_len);
+					left_cap = new_node->num_node_inv * inv_cout + child->left->num_node_inv * inv_cin
+							+ c * (new_node->left_wire_len + child->left_wire_len);
 				}
 			} else {
 				left_res = r * (parent->right_wire_len + child->left_wire_len);
 
-				if(child->left->node_num != -1) {
-					left_cap = child->left->total_cap + 0.5 * c * (parent->right_wire_len + child->left_wire_len);
+				if(child->left->node_num != -1 && child->left->num_node_inv == 0) {
+					left_cap = parent->num_node_inv * inv_cout + child->left->total_cap
+							+ c * (parent->right_wire_len + child->left_wire_len);
 				} else {
-					left_cap = child->left->num_node_inv * inv_cin + 0.5 * c * (parent->right_wire_len + child->left_wire_len);
+					left_cap = parent->num_node_inv * inv_cout + child->left->num_node_inv * inv_cin
+							+ c * (parent->right_wire_len + child->left_wire_len);
 				}
 			}
 
@@ -256,18 +274,22 @@ int insert_inv_right(node *parent, node *child)
 			if(new_node != NULL) {
 				right_res = r * (new_node->left_wire_len + child->right_wire_len);
 
-				if(child->right->node_num != -1) {
-					right_cap = child->right->total_cap + 0.5 * c * (new_node->left_wire_len + child->right_wire_len);
+				if(child->right->node_num != -1 && child->right->num_node_inv == 0) {
+					right_cap = new_node->num_node_inv * inv_cout + child->right->total_cap
+							+ c * (new_node->left_wire_len + child->right_wire_len);
 				} else {
-					right_cap = child->right->num_node_inv * inv_cin + 0.5 * c * (new_node->left_wire_len + child->right_wire_len);
+					right_cap = new_node->num_node_inv * inv_cout + child->right->num_node_inv * inv_cin
+							+ c * (new_node->left_wire_len + child->right_wire_len);
 				}
 			} else {
 				right_res = r * (parent->right_wire_len + child->right_wire_len);
 
-				if(child->right->node_num != -1) {
-					right_cap = child->right->total_cap + 0.5 * c * (parent->right_wire_len + child->right_wire_len);
+				if(child->right->node_num != -1 && child->right->num_node_inv == 0) {
+					right_cap = parent->num_node_inv * inv_cout + child->right->total_cap
+							+ c * (parent->right_wire_len + child->right_wire_len);
 				} else {
-					right_cap = child->right->num_node_inv * inv_cin + 0.5 * c * (parent->right_wire_len + child->right_wire_len);
+					right_cap = parent->num_node_inv * inv_cout + child->right->num_node_inv * inv_cin
+							+ c * (parent->right_wire_len + child->right_wire_len);
 				}
 			}
 
@@ -293,12 +315,14 @@ int insert_inv_right(node *parent, node *child)
 			parity_adjust(child);
 
 			if(new_node != NULL) {
-				new_node->total_cap = child->num_node_inv * inv_cin + c * new_node->left_wire_len;
+				new_node->total_cap = new_node->num_node_inv * inv_cout + child->num_node_inv * inv_cin + c * new_node->left_wire_len;
 			} else {
-				if(parent->left->node_num != -1) {
-					parent->total_cap = parent->left->total_cap + c * parent->left_wire_len + inv_cin + c * parent->right_wire_len;
+				if(parent->left->node_num != -1 && parent->left->num_node_inv == 0) {
+					parent->total_cap = parent->num_node_inv * inv_cout + parent->left->total_cap
+							+ c * parent->left_wire_len + child->num_node_inv * inv_cin + c * parent->right_wire_len;
 				} else {
-					parent->total_cap = parent->left->num_node_inv * inv_cin + c * parent->left_wire_len + child->num_node_inv * inv_cin + c * parent->right_wire_len;
+					parent->total_cap = parent->num_node_inv * inv_cout + parent->left->num_node_inv * inv_cin
+							+ c * parent->left_wire_len + child->num_node_inv * inv_cin + c * parent->right_wire_len;
 				}
 			}
 		}
