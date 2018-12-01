@@ -113,7 +113,7 @@ void zero_skew_adjust(node *curr)
     double rmax = curr->right->max_delay + wire_delay_r;
     double rmin = curr->right->min_delay + wire_delay_r;
     double propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
-    if(rmax > lmax && rmin <= lmin) {
+    if(rmax >= lmax && rmin <= lmin) {
         //Do nothing;
         curr->max_delay = rmax + propagation_delay_node;
         curr->min_delay = rmin + propagation_delay_node;
