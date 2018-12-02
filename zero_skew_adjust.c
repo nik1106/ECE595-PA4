@@ -9,7 +9,7 @@
 //Sink bound not met and the internal node has num_inv_node > 0, so we add inverters to this node until the sink bound is met
 void adjust_internal_inv(node* curr) {
     double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
-    while(curr->min_delay > SINK_BOUND) {
+    while(curr->max_delay > SINK_BOUND) {
         curr->num_node_inv++;
         curr->total_cap += inv_cout;
         double propagation_delay_new = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
@@ -58,13 +58,13 @@ void zero_skew_adjust(node *curr)
 
         curr->min_delay = curr->left->min_delay + wire_delay_l + propagation_delay;
         curr->max_delay = curr->left->max_delay + wire_delay_l + propagation_delay;
-        if(curr->min_delay > SINK_BOUND) {
+        if(curr->max_delay > SINK_BOUND) {
             if(curr->left_wire_len == 0 && curr->right_wire_len == -1) {
                 // double child_propagation_delay = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv 
                 //     * (curr->left->total_cap - c * curr->left->left_wire_len / 2);
                 double child_propagation_delay = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv 
                     * curr->left->total_cap;
-                while(curr->min_delay > SINK_BOUND) {
+                while(curr->max_delay > SINK_BOUND) {
                     curr->left->num_node_inv++;
                     curr->left->total_cap += inv_cout;
                     curr->total_cap += inv_cin;
@@ -81,7 +81,7 @@ void zero_skew_adjust(node *curr)
                 }
             }
             else{
-                while(curr->min_delay > SINK_BOUND) {
+                while(curr->max_delay > SINK_BOUND) {
                     curr->num_node_inv++;
                     curr->total_cap += inv_cout;
                     // double propagation_delay_new = SKEW_CONST * inv_rout * 1 / curr->num_node_inv 
@@ -128,8 +128,10 @@ void zero_skew_adjust(node *curr)
         double rmin = curr->right->min_delay + wire_delay_r;
     }
     else{
-        double rmax = lmax - (lmax-lmin) * 0.01;
-        double rmax = lmin + (lmax-lmin) * 0.01;
+        //The only time the right child of an internal node is null is the root of the entire tree
+        //At this point, only need to make sure sink bound has been met 
+        adjust_internal_inv(curr);
+        return;
     }
     double propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
     //Wrap around skew situation. Since the function is called in post order, we assume the subtrees already have obtained
@@ -138,10 +140,10 @@ void zero_skew_adjust(node *curr)
         //Do nothing;
         curr->max_delay = rmax + propagation_delay_node;
         curr->min_delay = rmin + propagation_delay_node;
-        if(curr->min_delay > SINK_BOUND) {
+        if(curr->max_delay > SINK_BOUND) {
             if(curr->num_node_inv > 0) {
                 //There is a inverter at this internal node, resize inverter size to meet sink constraints
-                while(curr->min_delay > SINK_BOUND) {
+                while(curr->max_delay > SINK_BOUND) {
                     curr->num_node_inv++;
                     curr->total_cap += inv_cout;
                     double propagation_delay_new = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
@@ -162,10 +164,10 @@ void zero_skew_adjust(node *curr)
         //Do nothing;
         curr->max_delay = lmax + propagation_delay_node;
         curr->min_delay = lmin + propagation_delay_node;
-        if(curr->min_delay > SINK_BOUND) {
+        if(curr->max_delay > SINK_BOUND) {
             if(curr->num_node_inv > 0) {
                 //There is a inverter at this internal node, resize inverter size to meet sink constraints
-                while(curr->min_delay >SINK_BOUND) {
+                while(curr->max_delay >SINK_BOUND) {
                     curr->num_node_inv++;
                     curr->total_cap += inv_cout;
                     double propagation_delay_new = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
