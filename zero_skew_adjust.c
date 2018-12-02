@@ -111,11 +111,13 @@ void zero_skew_adjust(node *curr)
     else{
         wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
     }
-    if(curr->right != NULL && curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
-        wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
-    }
-    else{
-        wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+    if(curr->right != NULL) {
+        if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
+            wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
+        }
+        else{
+            wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+        }
     }
 
 
