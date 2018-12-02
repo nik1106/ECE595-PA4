@@ -123,9 +123,10 @@ void zero_skew_adjust(node *curr)
 
     double lmax = curr->left->max_delay + wire_delay_l;
     double lmin = curr->left->min_delay + wire_delay_l;
+    double rmax, rmin;
     if(curr->right != NULL) {
-        double rmax = curr->right->max_delay + wire_delay_r;
-        double rmin = curr->right->min_delay + wire_delay_r;
+        rmax = curr->right->max_delay + wire_delay_r;
+        rmin = curr->right->min_delay + wire_delay_r;
     }
     else{
         //The only time the right child of an internal node is null is the root of the entire tree
