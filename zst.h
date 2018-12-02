@@ -19,7 +19,8 @@
 #define TRANS_TIME_BOUND 80.0e-12
 #define SINK_BOUND 1.5e-9
 #define TRANS_TIME_CONST 6.0
-#define SKEW_CONST 2.0
+#define SKEW_CONST 1.2
+
 double inv_cin, inv_cout, inv_rout;
 double r, c;
 double square_edge1_y_intercept, square_edge2_y_intercept;
