@@ -19,3 +19,10 @@ void test_insert(node* postorder_traversal_head) {
         postorder_traversal_head = postorder_traversal_head->next;
     }
 }
+
+void test_adjust(node* postorder_traversal_head) {
+    while(postorder_traversal_head != NULL) {
+        zero_skew_adjust(postorder_traversal_head);
+        postorder_traversal_head = postorder_traversal_head->next;
+    }
+}

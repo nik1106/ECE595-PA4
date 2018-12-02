@@ -8,7 +8,7 @@
 #include "zst.h"
 
 void recalc_total_cap(node* curr) {
-    if(curr->leaf_node_label == 1) {
+    if(curr->leaf_node_label != -1) {
         return;
     }
     else{
@@ -113,6 +113,8 @@ void zero_skew_adjust(node *curr)
     double rmax = curr->right->max_delay + wire_delay_r;
     double rmin = curr->right->min_delay + wire_delay_r;
     double propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+    //Wrap around skew situation. Since the function is called in post order, we assume the subtrees already have obtained
+    //Zero skew properties. Thus we need to worry about if the sink bound has been met or not 
     if(rmax >= lmax && rmin <= lmin) {
         //Do nothing;
         curr->max_delay = rmax + propagation_delay_node;
@@ -163,7 +165,7 @@ void zero_skew_adjust(node *curr)
     if(rmax - lmin >= lmax - rmin) {
         curr->max_delay = rmax;
         curr->min_delay = lmin;
-        double temp = abs(curr->max_delay - curr->min_delay);
+        double temp = fabs(curr->max_delay - curr->min_delay);
         //Right branch arrival too late, adjust right branch
         if(temp > SKEW_BOUND) {
             if(curr->right->node_num == -1) {
@@ -188,7 +190,7 @@ void zero_skew_adjust(node *curr)
                         propagation_delay_bottom_inv = propagation_delay_bottom_inv_new;
                         propagation_delay_top_inv = propagation_delay_top_inv_new;
                         curr->max_delay = top_inv->max_delay + wire_delay_r;
-                        temp = abs(curr->max_delay - curr->min_delay); 
+                        temp = fabs(curr->max_delay - curr->min_delay); 
                     }
                 }
                 else{
@@ -203,7 +205,7 @@ void zero_skew_adjust(node *curr)
                         curr->right->max_delay = curr->right->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
                         wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
                         curr->max_delay = curr->right->max_delay + wire_delay_r;
-                        temp = abs(curr->max_delay - curr->min_delay); 
+                        temp = fabs(curr->max_delay - curr->min_delay); 
 
                     }
 
@@ -218,7 +220,7 @@ void zero_skew_adjust(node *curr)
     else if (rmax - lmin < lmax - rmin) {
         curr->max_delay = lmax;
         curr->min_delay = rmin;
-        double temp = abs(curr->max_delay - curr->min_delay);
+        double temp = fabs(curr->max_delay - curr->min_delay);
         //Left branch arrival too late, adjust left branch
         if(temp > SKEW_BOUND) {
             if(curr->left->node_num == -1) {
@@ -243,7 +245,7 @@ void zero_skew_adjust(node *curr)
                         propagation_delay_bottom_inv = propagation_delay_bottom_inv_new;
                         propagation_delay_top_inv = propagation_delay_top_inv_new;
                         curr->max_delay = top_inv->max_delay + wire_delay_l;
-                        temp = abs(curr->max_delay - curr->min_delay); 
+                        temp = fabs(curr->max_delay - curr->min_delay); 
                     }
                 }
                 else{
@@ -258,7 +260,7 @@ void zero_skew_adjust(node *curr)
                         curr->left->max_delay = curr->left->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
                         wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
                         curr->max_delay = curr->left->max_delay + wire_delay_l;
-                        temp = abs(curr->max_delay - curr->min_delay); 
+                        temp = fabs(curr->max_delay - curr->min_delay); 
 
                     }
 

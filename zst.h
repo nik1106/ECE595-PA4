@@ -128,5 +128,6 @@ void bt_to_list(node *root, node **list, int *index);
 void find_inv_loc(node *node_parent, double wire_length, double radius, node *node_child, node *inv);
 void test_insert(node* post_order_traversal_head);
 void parity_adjust(node *parent);
+void test_adjust(node* postorder_traversal_head);
 
 #endif /* ZST_H */
