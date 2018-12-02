@@ -6,7 +6,7 @@
  */
 
 #include "zst.h"
-//Sink bound not met and the internal node has num_inv_node > 0, so we add inverters to this node until the sink bound is met
+//Sink bound not met and the internal node has num_node_inv > 0, so we add inverters to this node until the sink bound is met
 void adjust_internal_inv(node* curr) {
     double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
     while(curr->max_delay > SINK_BOUND) {
@@ -155,7 +155,7 @@ void zero_skew_adjust(node *curr)
                 }
             }
             else{
-                printf("We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+                printf("1.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
             }
         }
         return;
@@ -179,7 +179,7 @@ void zero_skew_adjust(node *curr)
                 }
             }
             else{
-                printf("We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+                printf("2.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
             }
         }
         return;
@@ -237,6 +237,15 @@ void zero_skew_adjust(node *curr)
                 printf(" the right child is not an inverter, add buffer to the right child and recalculate delay from the right child\n");
             }
         }
+        if(curr->max_delay > SINK_BOUND) {
+            if(curr->num_node_inv > 0) {
+                adjust_internal_inv(curr);
+            }
+            else{
+                printf("3.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+            }
+
+        }
     }
 
     else if (rmax - lmin < lmax - rmin) {
@@ -291,6 +300,15 @@ void zero_skew_adjust(node *curr)
             else{
                 printf(" the left child is not an inverter, add buffer to the left child and recalculate delay from the left child\n");
             }
+        }
+        if(curr->max_delay > SINK_BOUND) {
+            if(curr->num_node_inv > 0) {
+                adjust_internal_inv(curr);
+            }
+            else{
+                printf("4.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+            }
+
         }
     }
 }
