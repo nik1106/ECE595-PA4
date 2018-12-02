@@ -204,9 +204,10 @@ void zero_skew_adjust(node *curr)
                     while(temp > SKEW_BOUND) {
                         if(FIX_RIGHT){
                             bottom_inv->num_node_inv++;
+                            top_inv->num_node_inv++;
                             bottom_inv->total_cap += inv_cout;
-                            top_inv->total_cap += inv_cin;
-                            curr->total_cap += inv_cin;
+                            top_inv->total_cap += inv_cin + inv_cout;
+                            curr->total_cap += inv_cin + inv_cout;
                             double propagation_delay_top_inv_new = SKEW_CONST * inv_rout * 1 / top_inv->num_node_inv * top_inv->total_cap;
                             double propagation_delay_bottom_inv_new = SKEW_CONST * inv_rout * 1 / bottom_inv->num_node_inv * bottom_inv->total_cap;
                             bottom_inv->min_delay = bottom_inv->min_delay - propagation_delay_bottom_inv + propagation_delay_bottom_inv_new;
@@ -337,9 +338,10 @@ void zero_skew_adjust(node *curr)
                     while(temp > SKEW_BOUND) {
                         if(FIX_LEFT) {
                             bottom_inv->num_node_inv++;
+                            top_inv->num_node_inv++;
                             bottom_inv->total_cap += inv_cout;
-                            top_inv->total_cap += inv_cin;
-                            curr->total_cap += inv_cin;
+                            top_inv->total_cap += inv_cout + inv_cin;
+                            curr->total_cap += inv_cin + inv_cout;
                             double propagation_delay_top_inv_new = SKEW_CONST * inv_rout * 1 / top_inv->num_node_inv *top_inv->total_cap;
                             double propagation_delay_bottom_inv_new = SKEW_CONST * inv_rout * 1 / bottom_inv->num_node_inv * bottom_inv->total_cap;
                             bottom_inv->min_delay = bottom_inv->min_delay - propagation_delay_bottom_inv + propagation_delay_bottom_inv_new;
