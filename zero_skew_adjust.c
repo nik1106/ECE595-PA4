@@ -6,7 +6,18 @@
  */
 
 #include "zst.h"
-
+//Sink bound not met and the internal node has num_inv_node > 0, so we add inverters to this node until the sink bound is met
+void adjust_internal_inv(node* curr) {
+    double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+    while(curr->min_delay > SINK_BOUND) {
+        curr->num_node_inv++;
+        curr->total_cap += inv_cout;
+        double propagation_delay_new = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+        curr->min_delay = curr->min_delay - propagation_delay + propagation_delay_new;
+        curr->max_delay = curr->max_delay - propagation_delay + propagation_delay_new;
+        propagation_delay = propagation_delay_new;
+    }
+}
 void recalc_total_cap(node* curr) {
     if(curr->leaf_node_label != -1) {
         return;
@@ -100,7 +111,7 @@ void zero_skew_adjust(node *curr)
     else{
         wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
     }
-    if(curr->right->node_num != -1 & curr->right->num_node_inv == 0) {
+    if(curr->right != NULL && curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
         wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
     }
     else{
@@ -168,7 +179,7 @@ void zero_skew_adjust(node *curr)
         double temp = fabs(curr->max_delay - curr->min_delay);
         //Right branch arrival too late, adjust right branch
         if(temp > SKEW_BOUND) {
-            if(curr->right->node_num == -1) {
+            if(curr->right != NULL && curr->right->node_num == -1) {
                 //If the right child is an inverter, we can adjust sizes
                 if(curr->right->left_wire_len == 0 && curr->right->right_wire_len == -1) {
                     //if the right child is in fact the top inverter of a buffer, adjust its child's sizes
@@ -212,7 +223,7 @@ void zero_skew_adjust(node *curr)
                 }
             }
             else{
-                printf(" the right child is not an inverter, we are in deep trouble\n");
+                printf(" the right child is not an inverter, add buffer to the right child and recalculate delay from the right child\n");
             }
         }
     }
@@ -267,7 +278,7 @@ void zero_skew_adjust(node *curr)
                 }
             }
             else{
-                printf(" the left child is not an inverter, we are in deep trouble\n");
+                printf(" the left child is not an inverter, add buffer to the left child and recalculate delay from the left child\n");
             }
         }
     }
