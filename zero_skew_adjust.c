@@ -134,7 +134,12 @@ void zero_skew_adjust(node *curr)
         adjust_internal_inv(curr);
         return;
     }
-    double propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+    if(curr->num_node_inv > 0) {
+        double propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+    }
+    else{
+        double propagation_delay_node = 0;
+    }
     //Wrap around skew situation. Since the function is called in post order, we assume the subtrees already have obtained
     //Zero skew properties. Thus we need to worry about if the sink bound has been met or not 
     if(rmax >= lmax && rmin <= lmin) {
