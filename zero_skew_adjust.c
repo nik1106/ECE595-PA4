@@ -120,7 +120,8 @@ void zero_skew_adjust(node *curr)
         }
     }
 
-
+    int FIX_RIGHT = 0;
+    int FIX_LEFT = 0;
     double lmax = curr->left->max_delay + wire_delay_l;
     double lmin = curr->left->min_delay + wire_delay_l;
     double rmax, rmin;
@@ -141,7 +142,6 @@ void zero_skew_adjust(node *curr)
     //Wrap around skew situation. Since the function is called in post order, we assume the subtrees already have obtained
     //Zero skew properties. Thus we need to worry about if the sink bound has been met or not 
     if(rmax >= lmax && rmin <= lmin) {
-        //Do nothing;
         curr->max_delay = rmax + propagation_delay_node;
         curr->min_delay = rmin + propagation_delay_node;
         if(curr->max_delay > SINK_BOUND) {
@@ -165,7 +165,6 @@ void zero_skew_adjust(node *curr)
     }
 
     if(lmax >= rmax && lmin <= rmin) {
-        //Do nothing;
         curr->max_delay = lmax + propagation_delay_node;
         curr->min_delay = lmin + propagation_delay_node;
         if(curr->max_delay > SINK_BOUND) {
@@ -191,6 +190,7 @@ void zero_skew_adjust(node *curr)
         curr->max_delay = rmax;
         curr->min_delay = lmin;
         double temp = fabs(curr->max_delay - curr->min_delay);
+        FIX_RIGHT = 1;
         //Right branch arrival too late, adjust right branch
         if(temp > SKEW_BOUND) {
             if(curr->right != NULL && curr->right->node_num == -1) {
@@ -222,16 +222,49 @@ void zero_skew_adjust(node *curr)
                     double propagation_delay_single_inv = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
                     //If the right child is a stand-alone inverter, adjust its own sizes
                     while(temp > SKEW_BOUND) {
-                        curr->right->num_node_inv++;
-                        curr->right->total_cap += inv_cout;
-                        curr->total_cap += inv_cin;
-                        double propagation_delay_single_inv_new = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
-                        curr->right->min_delay = curr->right->min_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
-                        curr->right->max_delay = curr->right->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
-                        wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
-                        curr->max_delay = curr->right->max_delay + wire_delay_r;
-                        temp = fabs(curr->max_delay - curr->min_delay); 
+                        if(FIX_RIGHT){
+                            curr->right->num_node_inv++;
+                            curr->right->total_cap += inv_cout;
+                            curr->total_cap += inv_cin;
+                            double propagation_delay_single_inv_new = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
+                            curr->right->min_delay = curr->right->min_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
+                            curr->right->max_delay = curr->right->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
+                            wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+                            curr->max_delay = curr->right->max_delay + wire_delay_r;
+                            temp = fabs(curr->max_delay - curr->min_delay); 
+                            if(curr->max_delay < curr->min_delay) {
+                                FIX_RIGHT = 0;
+                            }
+                        }
+                        else{
+                            if(curr->left->num_node_inv >0) {
+                                //Now fixing left, first check if the left is an inverter or is an internal node with an inverter
+                                double temp_propa = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
+                                curr->left->num_node_inv++;
+                                curr->left->total_cap += inv_cout;
+                                curr->total_cap += inv_cin;
+                                double temp_propa_new = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
+                                curr->left->min_delay = curr->left->min_delay - temp_propa + temp_propa_new;
+                                curr->left->max_delay = curr->left->max_delay - temp_propa + temp_propa_new;
+                                wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+                                curr->min_delay = curr->left->min_delay + wire_delay_l;
+                                temp = fabs(curr->max_delay - curr->min_delay); 
+                            
+                            }
+                            else{
+                                printf("No inverter in the left, Add a buffer\n");
+                            }
+                            if(curr->max_delay > curr->min_delay) {
+                                FIX_RIGHT = 1;
+                            }
 
+                        }
+
+                    }
+                    if(curr->max_delay < curr->min_delay) {
+                        double ttemp = curr->max_delay;
+                        curr->max_delay = curr->min_delay;
+                        curr->min_delay = ttemp;
                     }
 
                 }
@@ -255,12 +288,13 @@ void zero_skew_adjust(node *curr)
         curr->max_delay = lmax;
         curr->min_delay = rmin;
         double temp = fabs(curr->max_delay - curr->min_delay);
+        FIX_LEFT = 1;
         //Left branch arrival too late, adjust left branch
         if(temp > SKEW_BOUND) {
             if(curr->left->node_num == -1) {
                 //If the left child is an inverter, we can adjust sizes
                 if(curr->left->left_wire_len == 0 && curr->left->right_wire_len == -1) {
-                    //if the right child is in fact the top inverter of a buffer, adjust its child's sizes
+                    //if the left child is in fact the top inverter of a buffer, adjust its child's sizes
                     node* top_inv = curr->left;
                     node* bottom_inv = curr->right->left;
                     double propagation_delay_top_inv = SKEW_CONST * inv_rout * 1 / top_inv->num_node_inv * bottom_inv->total_cap;
@@ -284,18 +318,49 @@ void zero_skew_adjust(node *curr)
                 }
                 else{
                     double propagation_delay_single_inv = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
-                    //If the right child is a stand-alone inverter, adjust its own sizes
+                    //If the left child is a stand-alone inverter, adjust its own sizes
                     while(temp > SKEW_BOUND) {
-                        curr->left->num_node_inv++;
-                        curr->left->total_cap += inv_cout;
-                        curr->total_cap += inv_cin;
-                        double propagation_delay_single_inv_new = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
-                        curr->left->min_delay = curr->left->min_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
-                        curr->left->max_delay = curr->left->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
-                        wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
-                        curr->max_delay = curr->left->max_delay + wire_delay_l;
-                        temp = fabs(curr->max_delay - curr->min_delay); 
+                        if(FIX_LEFT) {
+                            curr->left->num_node_inv++;
+                            curr->left->total_cap += inv_cout;
+                            curr->total_cap += inv_cin;
+                            double propagation_delay_single_inv_new = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
+                            curr->left->min_delay = curr->left->min_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
+                            curr->left->max_delay = curr->left->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
+                            wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+                            curr->max_delay = curr->left->max_delay + wire_delay_l;
+                            temp = fabs(curr->max_delay - curr->min_delay); 
+                            if(curr->max_delay < curr->min_delay) {
+                                FIX_LEFT = 0;
+                            }
+                        }
+                        else{
+                            if(curr->right->num_node_inv > 0) {
+                                double temp_propa = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
+                                curr->right->num_node_inv++;
+                                curr->right->total_cap += inv_cout;
+                                curr->total_cap += inv_cin;
+                                double temp_propa_new = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
+                                curr->right->min_delay = curr->right->min_delay - temp_propa + temp_propa_new;
+                                curr->right->max_delay = curr->right->max_delay - temp_propa + temp_propa_new;
+                                wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+                                curr->min_delay = curr->right->min_delay + wire_delay_r;
+                                temp = fabs(curr->max_delay - curr->min_delay); 
+                            }
+                            else{
+                                printf("No inverter on the right branch, insert buffer\n");
+                            }
+                            if(curr->max_delay > curr->min_delay) {
+                                FIX_LEFT = 1;
+                            }
 
+                        }
+
+                    }
+                    if(curr->max_delay < curr->min_delay) {
+                        double ttemp = curr->max_delay;
+                        curr->max_delay = curr->min_delay;
+                        curr->min_delay = ttemp;
                     }
 
                 }
