@@ -52,7 +52,7 @@ void zero_skew_adjust(node *curr)
     recalc_total_cap(curr);
     //if the current node is an inverter
     if(curr->node_num == -1) {
-        double wire_delay_l = WIRE_DELAY_CONST *r * curr->left_wire_len * (curr->total_cap - c * curr->left_wire_len / 2);
+        double wire_delay_l = r * curr->left_wire_len * (curr->total_cap - c * curr->left_wire_len / 2);
         //double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * (curr->total_cap - c * curr->left_wire_len / 2);
         double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
 
@@ -106,17 +106,17 @@ void zero_skew_adjust(node *curr)
     //Deal with internal nodes
     double wire_delay_l, wire_delay_r;
     if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
-        wire_delay_l = WIRE_DELAY_CONST *r * curr->left_wire_len * (curr->left->total_cap + c * curr->left_wire_len / 2);
+        wire_delay_l = r * curr->left_wire_len * (curr->left->total_cap + c * curr->left_wire_len / 2);
     }
     else{
-        wire_delay_l = WIRE_DELAY_CONST *r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+        wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
     }
     if(curr->right != NULL) {
         if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
-            wire_delay_r = WIRE_DELAY_CONST *r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
+            wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
         }
         else{
-            wire_delay_r = WIRE_DELAY_CONST *r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+            wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
         }
     }
 
@@ -216,7 +216,7 @@ void zero_skew_adjust(node *curr)
                             top_inv->max_delay = top_inv->max_delay - propagation_delay_top_inv + propagation_delay_top_inv_new;
                             propagation_delay_bottom_inv = propagation_delay_bottom_inv_new;
                             propagation_delay_top_inv = propagation_delay_top_inv_new;
-                            wire_delay_r = WIRE_DELAY_CONST * r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+                            wire_delay_r =  r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
                             curr->max_delay = top_inv->max_delay + wire_delay_r;
                             temp = fabs(curr->max_delay - curr->min_delay); 
                             if(curr->max_delay < curr->min_delay) {
@@ -234,7 +234,7 @@ void zero_skew_adjust(node *curr)
                                 double temp_propa_new = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
                                 curr->left->min_delay = curr->left->min_delay - temp_propa + temp_propa_new;
                                 curr->left->max_delay = curr->left->max_delay - temp_propa + temp_propa_new;
-                                wire_delay_l = WIRE_DELAY_CONST * r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+                                wire_delay_l =  r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
                                 curr->min_delay = curr->left->min_delay + wire_delay_l;
                                 temp = fabs(curr->max_delay - curr->min_delay); 
                             
@@ -265,7 +265,7 @@ void zero_skew_adjust(node *curr)
                             double propagation_delay_single_inv_new = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
                             curr->right->min_delay = curr->right->min_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
                             curr->right->max_delay = curr->right->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
-                            wire_delay_r =  WIRE_DELAY_CONST *r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+                            wire_delay_r =  r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
                             curr->max_delay = curr->right->max_delay + wire_delay_r;
                             temp = fabs(curr->max_delay - curr->min_delay); 
                             if(curr->max_delay < curr->min_delay) {
@@ -282,7 +282,7 @@ void zero_skew_adjust(node *curr)
                                 double temp_propa_new = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
                                 curr->left->min_delay = curr->left->min_delay - temp_propa + temp_propa_new;
                                 curr->left->max_delay = curr->left->max_delay - temp_propa + temp_propa_new;
-                                wire_delay_l =  WIRE_DELAY_CONST *r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+                                wire_delay_l =  r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
                                 curr->min_delay = curr->left->min_delay + wire_delay_l;
                                 temp = fabs(curr->max_delay - curr->min_delay); 
                             
@@ -350,7 +350,7 @@ void zero_skew_adjust(node *curr)
                             top_inv->max_delay = top_inv->max_delay - propagation_delay_top_inv + propagation_delay_top_inv_new;
                             propagation_delay_bottom_inv = propagation_delay_bottom_inv_new;
                             propagation_delay_top_inv = propagation_delay_top_inv_new;
-                            wire_delay_l = WIRE_DELAY_CONST *r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+                            wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
                             curr->max_delay = top_inv->max_delay + wire_delay_l;
                             temp = fabs(curr->max_delay - curr->min_delay); 
                             if(curr->max_delay < curr->min_delay) {
@@ -367,7 +367,7 @@ void zero_skew_adjust(node *curr)
                                 double temp_propa_new = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
                                 curr->right->min_delay = curr->right->min_delay - temp_propa + temp_propa_new;
                                 curr->right->max_delay = curr->right->max_delay - temp_propa + temp_propa_new;
-                                wire_delay_r = WIRE_DELAY_CONST *r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+                                wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
                                 curr->min_delay = curr->right->min_delay + wire_delay_r;
                                 temp = fabs(curr->max_delay - curr->min_delay); 
                             }
@@ -397,7 +397,7 @@ void zero_skew_adjust(node *curr)
                             double propagation_delay_single_inv_new = SKEW_CONST * inv_rout * 1 / curr->left->num_node_inv * curr->left->total_cap;
                             curr->left->min_delay = curr->left->min_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
                             curr->left->max_delay = curr->left->max_delay - propagation_delay_single_inv + propagation_delay_single_inv_new;
-                            wire_delay_l = WIRE_DELAY_CONST *r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
+                            wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
                             curr->max_delay = curr->left->max_delay + wire_delay_l;
                             temp = fabs(curr->max_delay - curr->min_delay); 
                             if(curr->max_delay < curr->min_delay) {
@@ -413,7 +413,7 @@ void zero_skew_adjust(node *curr)
                                 double temp_propa_new = SKEW_CONST * inv_rout * 1 / curr->right->num_node_inv * curr->right->total_cap;
                                 curr->right->min_delay = curr->right->min_delay - temp_propa + temp_propa_new;
                                 curr->right->max_delay = curr->right->max_delay - temp_propa + temp_propa_new;
-                                wire_delay_r = WIRE_DELAY_CONST *r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
+                                wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
                                 curr->min_delay = curr->right->min_delay + wire_delay_r;
                                 temp = fabs(curr->max_delay - curr->min_delay); 
                             }
