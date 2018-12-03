@@ -197,6 +197,14 @@ void zero_skew_adjust(node *curr)
             curr->min_delay = curr->left->min_delay + wire_delay_l;
             time_diff = fabs(curr->max_delay - curr->min_delay);
         }
+        if(curr->max_delay > SINK_BOUND) {
+            if(curr->num_node_inv > 0) {
+                adjust_internal_inv(curr);
+            }
+            else{
+                printf("3.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+            }
+        }
     }
     else if (rmax - lmin < lmax - rmin) {
         curr->max_delay = lmax;
@@ -218,6 +226,14 @@ void zero_skew_adjust(node *curr)
             curr->min_delay = curr->right->min_delay + wire_delay_r;
             time_diff = fabs(curr->max_delay - curr->min_delay);
 
+        }
+        if(curr->max_delay > SINK_BOUND) {
+            if(curr->num_node_inv > 0) {
+                adjust_internal_inv(curr);
+            }
+            else{
+                printf("3.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+            }
         }
     }
 }
