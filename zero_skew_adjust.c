@@ -201,6 +201,11 @@ void zero_skew_adjust(node *curr)
             }
             curr->min_delay = curr->left->min_delay + wire_delay_l;
         }
+        if(curr->max_delay < curr->min_delay) {
+            double ttemp = curr->max_delay;
+            curr->max_delay = curr->min_delay;
+            curr->min_delay = ttemp;
+        }
         if(curr->max_delay > SINK_BOUND) {
             if(curr->num_node_inv > 0) {
                 adjust_internal_inv(curr);
@@ -234,6 +239,12 @@ void zero_skew_adjust(node *curr)
             }
             curr->min_delay = curr->right->min_delay + wire_delay_r;
         }
+        if(curr->max_delay < curr->min_delay) {
+            double ttemp = curr->max_delay;
+            curr->max_delay = curr->min_delay;
+            curr->min_delay = ttemp;
+        }
+
         if(curr->max_delay > SINK_BOUND) {
             if(curr->num_node_inv > 0) {
                 adjust_internal_inv(curr);
