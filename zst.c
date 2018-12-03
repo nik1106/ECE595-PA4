@@ -59,8 +59,6 @@ node *insert_end(node *head, int leaf_node_label, double sink_node_cap, double x
 		head->right_wire_len = 0.0;
 		head->total_cap = sink_node_cap;
 		head->delay = 0.0;
-		head->max_delay = 0.0;
-		head->min_delay = 0.0;
 		head->num_node_inv = 0;
 		head->num_left_inv = 0;
 		head->num_right_inv = 0;
@@ -108,8 +106,6 @@ node *insert_end(node *head, int leaf_node_label, double sink_node_cap, double x
 	tail->next->right_wire_len = 0.0;
 	tail->next->total_cap = sink_node_cap;
 	tail->next->delay = 0.0;
-	tail->next->max_delay = 0.0;
-	tail->next->min_delay = 0.0;
 	tail->next->num_node_inv = 0;
 	tail->next->num_left_inv = 0;
 	tail->next->num_right_inv = 0;
@@ -2182,8 +2178,6 @@ node *create_internal_node(int node_num, node *left_child, node *right_child)
 	new_node->right_wire_len = 0.0;
 	new_node->total_cap = 0.0;
 	new_node->delay = 0.0;
-	new_node->max_delay = 0.0;
-	new_node->min_delay = 0.0;
 	new_node->num_node_inv = 0;
 	new_node->num_left_inv = 0;
 	new_node->num_right_inv = 0;
@@ -2306,8 +2300,6 @@ node *copy_node(node *node1)
 	node2->right_wire_len = node1->right_wire_len;
 	node2->total_cap = node1->total_cap;
 	node2->delay = node1->delay;
-	node2->max_delay = node1->max_delay;
-	node2->min_delay = node1->min_delay;
 	node2->num_node_inv = node1->num_node_inv;
 	node2->num_left_inv = node1->num_left_inv;
 	node2->num_right_inv = node1->num_right_inv;
