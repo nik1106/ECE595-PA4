@@ -18,7 +18,7 @@ void parity_adjust(node *parent)
 			parent->num_left_inv += 1;
 			parent->num_right_inv += 1;
 		} else {
-			new_node = create_internal_node(-1, parent->left, parent->right);
+			new_node = create_internal_node(parent->node_num, parent->left, parent->right);
 
 			new_node->x_coordinate = parent->x_coordinate;
 			new_node->y_coordinate = parent->y_coordinate;
@@ -26,11 +26,19 @@ void parity_adjust(node *parent)
 			new_node->left_wire_len = parent->left_wire_len;
 			new_node->right_wire_len = parent->right_wire_len;
 
+			parent->node_num = -1;
+
 			parent->left_wire_len = 0.0;
 			parent->right_wire_len = -1.0;
 
 			new_node->num_node_inv = parent->num_node_inv;
 			parent->num_node_inv = 1;
+
+			new_node->num_left_inv = parent->num_left_inv;
+			new_node->num_right_inv = parent->num_right_inv;
+
+			parent->num_left_inv = 1;
+			parent->num_right_inv = 0;
 
 			new_node->total_cap = parent->total_cap;
 			parent->total_cap = parent->num_node_inv * inv_cout + new_node->num_node_inv * inv_cin;
