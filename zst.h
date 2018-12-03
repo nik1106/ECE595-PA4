@@ -54,8 +54,6 @@ typedef struct node {
 	double right_wire_len;
 	double total_cap;
 	double delay;
-	double max_delay;
-	double min_delay;
 	int num_node_inv;
 	int num_left_inv;
 	int num_right_inv;
