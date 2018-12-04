@@ -6,7 +6,33 @@
  */
 
 #include "zst.h"
+#include <string.h>
 //Sink bound not met and the internal node has num_node_inv > 0, so we add inverters to this node until the sink bound is met
+double get_delay(double total_cap, int num_inv) {
+    char command[50];
+    FILE* fptr_in = fopen("inv.spice", "w");
+    fprintf(fptr_in, ".options temp=75\n");
+    fprintf(fptr_in, ".tran 0.001n 1.0n 0.0n 0.001n\n");
+    fprintf(fptr_in, ".include tuned_45nm_HP.pm\n");
+    fprintf(fptr_in, ".include clkinv0.subckt\n");
+    fprintf(fptr_in, "vdd vdd 0 1.000\n");
+    int i = 0;
+    for(i = 0; i < num_inv; i++) {
+        fprintf(fptr_in, "x%d in out vdd inv0\n", i);
+    }
+    fprintf(fptr_in, "cout out 0 %le", total_cap - num_inv * inv_cout);
+    fprintf(fptr_in, ".ic v(in) = 1\n");
+    fprintf(fptr_in, ".ic v(out) = 0\n");
+    fprintf(fptr_in, ".measure tran rdelay trig v(in) val='0.5' fall=1 targ v(out) val='0.5' rise=1\n");
+    fprintf(fptr_in, ".measure tran fdelay trig v(in) val='0.5' rise=1 targ v(out) val='0.5' fall=1\n");
+    fprintf(fptr_in, ".end\n");
+    fclose(fptr_in);
+    strcpy(command, "ngspice -b inv.spice > inv.lis");
+    system(command);
+    return 0.0;
+
+
+}
 void adjust_internal_inv(node* curr) {
     double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
     while(curr->delay > SINK_BOUND) {
@@ -58,7 +84,9 @@ void zero_skew_adjust(node* curr) {
         return;
     }
     if(curr->node_num == -1) {
-        double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+        double propagation_delay = get_delay(curr->total_cap - curr->num_node_inv * inv_cout, curr->num_node_inv);
+        return;
+        //double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
         curr->delay = curr->left->delay + propagation_delay;
         adjust_internal_inv(curr);
         return;
