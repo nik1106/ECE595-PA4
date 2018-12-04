@@ -12,11 +12,11 @@ double get_delay(double total_cap, int num_inv) {
     char command[50];
     FILE* fptr_in = fopen("inv.spice", "w");
     fprintf(fptr_in, ".options temp=75\n");
-    fprintf(fptr_in, ".tran 0.001n 1.0n 0.0n 0.001n\n");
+    fprintf(fptr_in, ".tran 0.001n 2.2n 0.0n 0.001n\n");
     fprintf(fptr_in, ".include tuned_45nm_HP.pm\n");
     fprintf(fptr_in, ".include clkinv0.subckt\n");
     fprintf(fptr_in, "vdd vdd 0 1.000\n");
-    fprintf(fptr_in, "vin in 0 pulse(0 1 0.0 10p 10p 500p 1.0n 0.0)\n");
+    fprintf(fptr_in, "vin in 0 1.000 pwl(0n 1, 0.2n 1, 0.325n 0, 0.7n 0, 0.825n 1, 1.2n 1, 1.325n 0, 1.7n 0, 1.825n 1, 2.2n 1)\n");
     int i = 0;
     for(i = 0; i < num_inv; i++) {
         fprintf(fptr_in, "x%d in out vdd inv0\n", i);
@@ -85,9 +85,7 @@ void zero_skew_adjust(node* curr) {
         return;
     }
     if(curr->node_num == -1) {
-        double propagation_delay = get_delay(curr->total_cap - curr->num_node_inv * inv_cout, curr->num_node_inv);
-        return;
-        //double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+        double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
         curr->delay = curr->left->delay + propagation_delay;
         adjust_internal_inv(curr);
         return;
@@ -114,7 +112,9 @@ void zero_skew_adjust(node* curr) {
     }
     double propagation_delay_node = 0;
     if(curr->num_node_inv > 0) {
+        //double propagation_delay_spice = get_delay(curr->total_cap, curr->num_node_inv);
         propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+
     }
     double left_time = curr->left->delay + wire_delay_l + propagation_delay_node;
     double right_time = curr->right->delay + wire_delay_r + propagation_delay_node;
@@ -138,6 +138,8 @@ void zero_skew_adjust(node* curr) {
                 wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
             }
             curr->delay = right_time;
+            printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
+            printf("wire length left %le wirelength right %le\n", curr->left_wire_len, curr->right_wire_len);
             if(curr->delay > SINK_BOUND) {
                 if(curr->num_node_inv > 0) {
                     adjust_internal_inv(curr);
@@ -166,6 +168,9 @@ void zero_skew_adjust(node* curr) {
                 wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
             }
             curr->delay = left_time;
+            printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
+            printf("wire length left %le wirelength right %le\n", curr->left_wire_len, curr->right_wire_len);
+
             if(curr->delay > SINK_BOUND) {
                 if(curr->num_node_inv > 0) {
                     adjust_internal_inv(curr);
