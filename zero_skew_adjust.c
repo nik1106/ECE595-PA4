@@ -16,11 +16,12 @@ double get_delay(double total_cap, int num_inv) {
     fprintf(fptr_in, ".include tuned_45nm_HP.pm\n");
     fprintf(fptr_in, ".include clkinv0.subckt\n");
     fprintf(fptr_in, "vdd vdd 0 1.000\n");
+    fprintf(fptr_in, "vin in 0 pulse(0 1 0.0 10p 10p 500p 1.0n 0.0)\n");
     int i = 0;
     for(i = 0; i < num_inv; i++) {
         fprintf(fptr_in, "x%d in out vdd inv0\n", i);
     }
-    fprintf(fptr_in, "cout out 0 %le", total_cap - num_inv * inv_cout);
+    fprintf(fptr_in, "cout out 0 %le\n", total_cap - num_inv * inv_cout);
     fprintf(fptr_in, ".ic v(in) = 1\n");
     fprintf(fptr_in, ".ic v(out) = 0\n");
     fprintf(fptr_in, ".measure tran rdelay trig v(in) val='0.5' fall=1 targ v(out) val='0.5' rise=1\n");
