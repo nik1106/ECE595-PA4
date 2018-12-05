@@ -112,7 +112,6 @@ void zero_skew_adjust(node* curr) {
                 wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
             }
             curr->delay = curr->left->delay + wire_delay_l;
-            printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
         }
         else{
             double a, b, c_new;
@@ -142,7 +141,6 @@ void zero_skew_adjust(node* curr) {
                 wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
             }
             curr->delay = curr->left->delay + wire_delay_l;
-            printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
         }
     }
     double propagation_delay_node = 0.0;
