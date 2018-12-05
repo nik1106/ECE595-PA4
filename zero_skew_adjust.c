@@ -87,11 +87,8 @@ void zero_skew_adjust(node* curr) {
     if(!almost_equal_relative(left_time, right_time)) {
         if(left_time < right_time) {
             double a, b, c_new;
-            //double temp = right_time - left_time;
             if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
                 a = r*c / 2;
-                //b = r * curr->left->total_cap;
-                //c_new = -temp;
                 b = r * curr->left->total_cap;
                 if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
                 	c_new = curr->left->delay - curr->right->delay - r * curr->right->total_cap * curr->right_wire_len - 0.5 * r * c * pow(curr->right_wire_len, 2);
@@ -104,8 +101,6 @@ void zero_skew_adjust(node* curr) {
             }
             else{
                 a = r*c / 2;
-                //b = r * curr->left->num_node_inv * inv_cin;
-                //c_new = -temp;
                 b = r * curr->left->num_node_inv * inv_cin;
                 if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
                 	c_new = curr->left->delay - curr->right->delay - r * curr->right->total_cap * curr->right_wire_len - 0.5 * r * c * pow(curr->right_wire_len, 2);
@@ -121,12 +116,9 @@ void zero_skew_adjust(node* curr) {
         }
         else{
             double a, b, c_new;
-            //Left branch arrival too late, make the right wire longer 
-            //double temp = left_time - right_time;
+            //Left branch arrival too late, make the right wire longer
             if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
                 a = r*c / 2;
-                //b = r * curr->right->total_cap;
-                //c_new = -temp;
                 b = r * curr->right->total_cap;
                 if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
                     c_new = curr->right->delay - curr->left->delay - r * curr->left->total_cap * curr->left_wire_len - 0.5 * r * c * pow(curr->left_wire_len, 2);
@@ -139,8 +131,6 @@ void zero_skew_adjust(node* curr) {
             }
             else{
                 a = r*c / 2;
-               // b = r * curr->right->num_node_inv * inv_cin;
-                //c_new = -temp;
                 b = r * curr->right->num_node_inv * inv_cin;
                 if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
                      c_new = curr->right->delay - curr->left->delay - r * curr->left->total_cap * curr->left_wire_len - 0.5 * r * c * pow(curr->left_wire_len, 2);
@@ -162,7 +152,3 @@ void zero_skew_adjust(node* curr) {
     }
     curr->delay += propagation_delay_node;
 }
-
-
-
-
