@@ -61,6 +61,10 @@ int main(int argc, char *argv[])
 	node* postorder_traversal_head = list[0];
 	list[num_nodes - 1]->next = NULL;
 	free(list);
+
+	test_insert(postorder_traversal_head);
+	test_adjust(postorder_traversal_head);
+	test_adjust(postorder_traversal_head);
 	test_insert(postorder_traversal_head);
 	test_adjust(postorder_traversal_head);
 

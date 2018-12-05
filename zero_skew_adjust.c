@@ -6,44 +6,7 @@
  */
 
 #include "zst.h"
-#include <string.h>
-//Sink bound not met and the internal node has num_node_inv > 0, so we add inverters to this node until the sink bound is met
-double get_delay(double total_cap, int num_inv) {
-    char command[50];
-    FILE* fptr_in = fopen("inv.spice", "w");
-    fprintf(fptr_in, ".options temp=75\n");
-    fprintf(fptr_in, ".tran 0.001n 2.2n 0.0n 0.001n\n");
-    fprintf(fptr_in, ".include tuned_45nm_HP.pm\n");
-    fprintf(fptr_in, ".include clkinv0.subckt\n");
-    fprintf(fptr_in, "vdd vdd 0 1.000\n");
-    fprintf(fptr_in, "vin in 0 1.000 pwl(0n 1, 0.2n 1, 0.325n 0, 0.7n 0, 0.825n 1, 1.2n 1, 1.325n 0, 1.7n 0, 1.825n 1, 2.2n 1)\n");
-    int i = 0;
-    for(i = 0; i < num_inv; i++) {
-        fprintf(fptr_in, "x%d in out vdd inv0\n", i);
-    }
-    fprintf(fptr_in, "cout out 0 %le\n", total_cap - num_inv * inv_cout);
-    fprintf(fptr_in, ".ic v(in) = 1\n");
-    fprintf(fptr_in, ".ic v(out) = 0\n");
-    fprintf(fptr_in, ".measure tran rdelay trig v(in) val='0.5' fall=1 targ v(out) val='0.5' rise=1\n");
-    fprintf(fptr_in, ".measure tran fdelay trig v(in) val='0.5' rise=1 targ v(out) val='0.5' fall=1\n");
-    fprintf(fptr_in, ".end\n");
-    fclose(fptr_in);
-    strcpy(command, "ngspice -b inv.spice > inv.lis");
-    system(command);
-    return 0.0;
 
-
-}
-void adjust_internal_inv(node* curr) {
-    double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
-    while(curr->delay > SINK_BOUND) {
-        curr->num_node_inv++;
-        curr->total_cap += inv_cout;
-        double propagation_delay_new = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
-        curr->delay = curr->delay - propagation_delay + propagation_delay_new;
-        propagation_delay = propagation_delay_new;
-    }
-}
 void recalc_total_cap(node* curr) {
     if(curr->leaf_node_label != -1) {
         return;
@@ -78,6 +41,7 @@ void recalc_total_cap(node* curr) {
         }
     }
 }
+
 void zero_skew_adjust(node* curr) {
     recalc_total_cap(curr);
 
@@ -98,7 +62,7 @@ void zero_skew_adjust(node* curr) {
     if(curr->node_num == -1) {
         double propagation_delay = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
         curr->delay = curr->left->delay + wire_delay_l + propagation_delay;
-        adjust_internal_inv(curr);
+
         return;
     }
 
@@ -109,83 +73,94 @@ void zero_skew_adjust(node* curr) {
         else{
             wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
         }
+    }
+
+    double left_time = curr->left->delay + wire_delay_l;
+    double right_time;
+    if(curr->right != NULL) {
+    	right_time = curr->right->delay + wire_delay_r;
     } else {
-        adjust_internal_inv(curr);
-        return;
+    	return;
     }
-
-    double propagation_delay_node = 0.0;
-    if(curr->num_node_inv > 0) {
-        //double propagation_delay_spice = get_delay(curr->total_cap, curr->num_node_inv);
-        propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
-    }
-
-    double left_time = curr->left->delay + wire_delay_l + propagation_delay_node;
-    double right_time = curr->right->delay + wire_delay_r + propagation_delay_node;
 
     curr->delay = left_time;
     if(!almost_equal_relative(left_time, right_time)) {
         if(left_time < right_time) {
             double a, b, c_new;
-            double temp = right_time - left_time;
+            //double temp = right_time - left_time;
             if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
                 a = r*c / 2;
+                //b = r * curr->left->total_cap;
+                //c_new = -temp;
                 b = r * curr->left->total_cap;
-                c_new = -temp;
-                curr->left_wire_len += (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
+                if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
+                	c_new = curr->left->delay - curr->right->delay - r * curr->right->total_cap * curr->right_wire_len - 0.5 * r * c * pow(curr->right_wire_len, 2);
+                }
+                else{
+                    c_new = curr->left->delay - curr->right->delay - r * curr->right->num_node_inv * inv_cin * curr->right_wire_len - 0.5 * r * c * pow(curr->right_wire_len, 2);
+                }
+                curr->left_wire_len = (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
                 wire_delay_l = r * curr->left_wire_len * (curr->left->total_cap + c * curr->left_wire_len / 2);
             }
             else{
                 a = r*c / 2;
+                //b = r * curr->left->num_node_inv * inv_cin;
+                //c_new = -temp;
                 b = r * curr->left->num_node_inv * inv_cin;
-                c_new = -temp;
-                curr->left_wire_len += (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
-                wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
-            }
-            curr->delay = right_time;
-            printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
-            printf("wire length left %le wirelength right %le\n", curr->left_wire_len, curr->right_wire_len);
-            if(curr->delay > SINK_BOUND) {
-                if(curr->num_node_inv > 0) {
-                    adjust_internal_inv(curr);
+                if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
+                	c_new = curr->left->delay - curr->right->delay - r * curr->right->total_cap * curr->right_wire_len - 0.5 * r * c * pow(curr->right_wire_len, 2);
                 }
                 else{
-                    printf("2.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
+                    c_new = curr->left->delay - curr->right->delay - r * curr->right->num_node_inv * inv_cin * curr->right_wire_len - 0.5 * r * c * pow(curr->right_wire_len, 2);
                 }
+                curr->left_wire_len = (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
+                wire_delay_l = r * curr->left_wire_len * (curr->left->num_node_inv * inv_cin + c * curr->left_wire_len / 2);
             }
+            curr->delay = curr->left->delay + wire_delay_l;
+            printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
         }
         else{
             double a, b, c_new;
             //Left branch arrival too late, make the right wire longer 
-            double temp = left_time - right_time;
+            //double temp = left_time - right_time;
             if(curr->right->node_num != -1 && curr->right->num_node_inv == 0) {
                 a = r*c / 2;
+                //b = r * curr->right->total_cap;
+                //c_new = -temp;
                 b = r * curr->right->total_cap;
-                c_new = -temp;
-                curr->right_wire_len += (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
+                if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
+                    c_new = curr->right->delay - curr->left->delay - r * curr->left->total_cap * curr->left_wire_len - 0.5 * r * c * pow(curr->left_wire_len, 2);
+                }
+                else{
+                    c_new = curr->right->delay - curr->left->delay - r * curr->left->num_node_inv * inv_cin * curr->left_wire_len - 0.5 * r * c * pow(curr->left_wire_len, 2);
+                }
+                curr->right_wire_len = (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
                 wire_delay_r = r * curr->right_wire_len * (curr->right->total_cap + c * curr->right_wire_len / 2);
             }
             else{
                 a = r*c / 2;
+               // b = r * curr->right->num_node_inv * inv_cin;
+                //c_new = -temp;
                 b = r * curr->right->num_node_inv * inv_cin;
-                c_new = -temp;
-                curr->right_wire_len += (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
+                if(curr->left->node_num != -1 && curr->left->num_node_inv == 0) {
+                     c_new = curr->right->delay - curr->left->delay - r * curr->left->total_cap * curr->left_wire_len - 0.5 * r * c * pow(curr->left_wire_len, 2);
+                 }
+                 else{
+                     c_new = curr->right->delay - curr->left->delay - r * curr->left->num_node_inv * inv_cin * curr->left_wire_len - 0.5 * r * c * pow(curr->left_wire_len, 2);
+                 }
+                curr->right_wire_len = (-b + sqrt(pow(b, 2) - 4 * a * c_new)) / (2 * a);
                 wire_delay_r = r * curr->right_wire_len * (curr->right->num_node_inv * inv_cin + c * curr->right_wire_len / 2);
             }
-            curr->delay = left_time;
+            curr->delay = curr->left->delay + wire_delay_l;
             printf("left time %le, right time %le\n", curr->left->delay + wire_delay_l, curr->right->delay + wire_delay_r);
-            printf("wire length left %le wirelength right %le\n", curr->left_wire_len, curr->right_wire_len);
-
-            if(curr->delay > SINK_BOUND) {
-                if(curr->num_node_inv > 0) {
-                    adjust_internal_inv(curr);
-                }
-                else{
-                    printf("2.We are in trouble. What should we do since there is no inverter at this internal node and yet the sink constraint is not met\n");
-                }
-            }
         }
     }
+    double propagation_delay_node = 0.0;
+    if(curr->num_node_inv > 0) {
+    	recalc_total_cap(curr);
+        propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
+    }
+    curr->delay += propagation_delay_node;
 }
 
 

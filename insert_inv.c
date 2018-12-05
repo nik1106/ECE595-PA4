@@ -18,7 +18,7 @@ int insert_inv_left(node *parent, node *child)
 
 	x = 0.5 * TRANS_TIME_CONST * r * c;
 
-	if(child->node_num != -1) {
+	if(child->node_num != -1 && child->num_node_inv == 0) {
 		y = TRANS_TIME_CONST * r * child->total_cap;
 	} else {
 		y = TRANS_TIME_CONST * r * child->num_node_inv * inv_cin;
