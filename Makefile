@@ -10,9 +10,6 @@ VALGRIND = valgrind --tool=memcheck
 $(TARGET): $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LIBS)
 
-test:
-	$(VALGRIND)=./logfile ./pa4
-
 .c.o:
 	$(GCC) $(CFLAGS) -c $*.c
 
