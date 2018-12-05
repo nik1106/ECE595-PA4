@@ -37,7 +37,7 @@ void recalc_total_cap(node* curr) {
             curr->total_cap = inv_cout * curr->num_node_inv + left_cap + right_cap + c * (curr->left_wire_len + curr->right_wire_len);
         }
         else {
-            curr->total_cap = inv_cout * curr->num_node_inv + left_cap + right_cap + c * curr->left_wire_len;
+            curr->total_cap = inv_cout * curr->num_node_inv + left_cap + c * curr->left_wire_len;
         }
     }
 }
