@@ -144,8 +144,8 @@ void zero_skew_adjust(node* curr) {
         }
     }
     double propagation_delay_node = 0.0;
+    recalc_total_cap(curr);
     if(curr->num_node_inv > 0) {
-    	recalc_total_cap(curr);
         propagation_delay_node = SKEW_CONST * inv_rout * 1 / curr->num_node_inv * curr->total_cap;
     }
     curr->delay += propagation_delay_node;
