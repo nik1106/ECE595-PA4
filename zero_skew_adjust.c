@@ -80,6 +80,7 @@ void zero_skew_adjust(node* curr) {
     if(curr->right != NULL) {
     	right_time = curr->right->delay + wire_delay_r;
     } else {
+    	curr->delay = left_time;
     	return;
     }
 
