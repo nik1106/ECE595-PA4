@@ -26,6 +26,7 @@ int main(int argc, char *argv[])
 	fp = fopen(argv[1], "r");
 	if(fp == NULL) {
 		printf("Error opening file %s for reading\n", argv[1]);
+		return 1;
 	}
 	fscanf(fp, "%le %le %le\n", &inv_cin, &inv_cout, &inv_rout);
 	fclose(fp);
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
 	fp = fopen(argv[2], "r");
 	if(fp == NULL) {
 		printf("Error opening file %s for reading\n", argv[2]);
+		return 1;
 	}
 	fscanf(fp, "%le %le\n", &r, &c);
 	fclose(fp);
